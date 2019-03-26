@@ -615,6 +615,11 @@ input, select, textarea {
 			display: none;
 		}
 
+	.slow-spin
+	{
+		-webkit-animation: fa-spin 4s infinite linear;
+  		animation: fa-spin 4s infinite linear;
+	}
 /* Image */
 
 	.image {
@@ -1135,11 +1140,13 @@ input, select, textarea {
 			-webkit-transition: -webkit-transform 0.325s ease-in-out, -webkit-filter 0.325s ease-in-out;
 			-ms-transition: -ms-transform 0.325s ease-in-out, -ms-filter 0.325s ease-in-out;
 			transition: transform 0.325s ease-in-out, filter 0.325s ease-in-out;
-			background-image: url("../../images/bg.jpg");
+			background-image: url("../../images/bg-new.jpg");
 			background-position: center;
 			background-size: cover;
 			background-repeat: no-repeat;
 			z-index: 1;
+			-webkit-animation: oscillate 8s infinite linear;
+  			animation: oscillate 8s infinite linear;
 		}
 
 		body.is-article-visible #bg:after {
@@ -1155,6 +1162,67 @@ input, select, textarea {
 
 		body.is-preload #bg:before {
 			background-color: #000000;
+		}
+		
+		.gallery-container
+		{
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+		}
+		.gallery-item
+		{
+			width: 49%;
+			height: 48%;
+		}
+		.gallery-item img
+		{
+			border-radius: 5%;
+			width: 100%;
+			height: 100%;
+			-moz-filter: grayscale(100%);
+			-webkit-filter: grayscale(100%);
+			-ms-filter: grayscale(100%);
+			filter: grayscale(100%);
+			-moz-transition: -moz-filter 0.325s ease-in-out;
+			-webkit-transition:-webkit-filter 0.325s ease-in-out;
+			-ms-transition: -ms-filter 0.325s ease-in-out;
+			transition: filter 0.325s ease-in-out;
+		}
+
+		.gallery-item img:hover
+		{
+			-moz-filter: grayscale(0%);
+			-webkit-filter: grayscale(0%);
+			-ms-filter: grayscale(0%);
+			filter: grayscale(0%);
+		}
+
+		@keyframes oscillate
+		{
+			0%   {
+				opacity: 1; 
+				-moz-filter: grayscale(10%);
+				-webkit-filter: grayscale(10%);
+				-ms-filter: grayscale(10%);
+				filter: grayscale(10%);
+			}
+    		35%  {opacity: 0.75;}
+			50%  {
+				opacity: 0.5;
+				moz-filter: grayscale(50%);
+				-webkit-filter: grayscale(50%);
+				-ms-filter: grayscale(50%);
+				filter: grayscale(50%);
+			}
+    		75%  {opacity: 0.85;}
+			100% {
+				opacity: 1;
+				-moz-filter: grayscale(10%);
+				-webkit-filter: grayscale(10%);
+				-ms-filter: grayscale(10%);
+				filter: grayscale(10%);
+			}
 		}
 
 /* Wrapper */
@@ -1205,7 +1273,12 @@ input, select, textarea {
 		}
 
 		@media screen and (max-width: 480px) {
-
+			
+			.gallery-item
+			{
+				width: 100%;
+				height: 99%;
+			}
 			#wrapper {
 				padding: 1rem;
 			}
