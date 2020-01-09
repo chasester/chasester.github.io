@@ -1,0 +1,110 @@
+<div className="is-preload">
+
+{/* <!-- Wrapper --> */}
+  <div id="wrapper">
+
+    {/* <!-- Header --> */}
+      <header id="header">
+        <div className="logo">
+          <span className={"icon fa fa-spin fa-2x"} style={{paddingBottom: "2.6rem", paddingRight: "2.6rem", marginBottom: "0.5rem", verticalAlign: "middle"}}><span className={"fa fa-cog fa-spin slow-spin"}></span></span>
+        </div>
+        <div className="content">
+          <div className="inner">
+            <h1>Chase Wenner</h1>
+            <p>I am a Web kit development student <br/>that is motivated, hardworking, and knowledable.</p>
+          </div>
+        </div>
+        <nav>
+          <ul>
+            <li><a href="#intro">Intro</a></li>
+            <li><a href="#work">Work</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
+
+    {/* <!-- Main --> */}
+      <div id="main">
+
+        {/* <!-- Intro --> */}
+          <article id="intro" style={{display: "flex", flexDirection: "column"}}>
+            <h2 className="major">Intro</h2>
+            <div style={{display: "block", flexWrap: "no-wrap"}}>
+            <span className="main"><img src="images/ChaseSelfPortGray.png" alt="" width={"180vw"} height={"210vh"} style={{float: "left", opacity: "0.75", marginRight: "2%"}} /></span>
+            <p>I am a student at Lambda School learning Full Stack Web Development. I am skilled in Html, CSS, Js, C++, Python, PHP, C#, and many other langues. I have a large math background and am very good at linear algebra in both the 2d and 3d spaces. Make sure to check out some of my work that I have done <a href="#work">here at Lambda</a>.</p>
+            <p>I have been programing for 10+ years and enjoy oop. I enjoy C++ coding the most and have a good understanding of memory management, type-casting, templates, and verdaic (functions and templates). I have a good understanding of GLSL, openGL, and SDL, and have worked on many projects using these libraries. I also have worked with both Unreal and Unity extenively, and can program both in 2d space and 3d worlds.</p>
+            </div>
+          </article>
+
+        {/* <!-- Work --> */}
+          <article id="work">
+            <h2 className="major">Work</h2>
+            <p>Here is some of the work I have done as a student at Lambda School taking there Full Stack Web Development Course.</p>
+            <div className="gallery-container">
+              <a href="https://codepen.io/chase-wenner/pen/wOEqzz" className="gallery-item"><img src="https://s3-us-west-2.amazonaws.com/i.cdpn.io/3019295.wOEqzz.b7c07160-28a7-46eb-b4dc-2c07a1e62952.png"/></a>
+              <a href="https://codepen.io/chase-wenner/pen/LaarWr?editors=1100" className="gallery-item"><img src="https://s3-us-west-2.amazonaws.com/i.cdpn.io/3019295.LaarWr.6111d519-8c3d-4367-ac76-b997c1c26f28.png"/></a>
+              <a href="https://codepen.io/chase-wenner/pen/qvyOzw" className="gallery-item"><img src="https://s3-us-west-2.amazonaws.com/i.cdpn.io/3019295.qvyOzw.08b8cc5f-9ecf-4746-aa62-5a458fa91d2e.png"/></a>
+            </div>
+          </article>
+
+        {/* <!-- About --> */}
+          <article id="about">
+            <h2 className="major">About</h2>
+            <span className="image main"><img src="images/pic01.jpg" alt="" />In a professional context it often happens that private or corporate clients corder a publication to be made and presented with the actual content still not being ready. Think of a news blog that's filled with content hourly on the day of going live. However, reviewers tend to be distracted by comprehensible content, say, a random text copied from a newspaper or the internet. The are likely to focus on the text, disregarding the layout and its elements. Besides, random text risks to be unintendedly humorous or offensive, an unacceptable risk in corporate environments. Lorem ipsum and its many variants have been employed since the early 1960ies, and quite likely since the sixteenth century.</span>
+            <p></p>
+          </article>
+
+        {/* <!-- Contact --> */}
+          <article id="contact">
+            <h2 className="major">Contact</h2>
+            <form method="post" action="#">
+              <div className="fields">
+                <div className="field half">
+                  <label htmlFor="name">Name</label>
+                  <input type="text" name="name" id="name" />
+                </div>
+                <div className="field half">
+                  <label htmlFor="email">Email</label>
+                  <input type="text" name="email" id="email" />
+                </div>
+                <div className="field">
+                  <label htmlFor="message">Message</label>
+                  <textarea name="message" id="message" rows="4"></textarea>
+                </div>
+              </div>
+              <ul className="actions">
+                <li><input type="submit" value="Send Message" className="primary" /></li>
+                <li><input type="reset" value="Reset" /></li>
+              </ul>
+            </form>
+            <ul className="icons">
+              <li><a href="https://github.com/chasester" className="icon fa-github"><span className="label">GitHub</span></a></li>
+              <li><a href="mailto:chasester123@gmail.com" className="icon fa-envelope-open"><span className="label">Email</span></a></li>
+              <li><a href="tel:+16148247511" className="icon fa-phone"><span className="label">Phone</span></a></li>
+            </ul>
+          </article>
+
+        {/* <!-- Elements --> */}
+      </div>
+
+    {/* <!-- Footer --> */}
+      <footer id="footer">
+        <p className="copyright">Chase Wenner Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+      </footer>
+
+  </div>
+
+{/* <!-- BG --> */}
+  <div id="bg"></div>
+
+{/* <!-- Scripts --> */}
+  {/* 
+  Run inside component will mount
+  <script src="assets/js/jquery.min.js"></script>
+  <script src="assets/js/browser.min.js"></script>
+  <script src="assets/js/breakpoints.min.js"></script>
+  <script src="assets/js/util.js"></script>
+  <script src="assets/js/main.js"></script> */}
+
+</div>
