@@ -42,10 +42,22 @@ var RandomMapRender = {
     benchmarkPointer: 0,
     benchmarkMaxSites: 100,
 
-    init: function() {
-        this.canvas = document.getElementById('RandomMapCanvas');
-        this.randomSites(100,true);
-        this.render();
+    init: function(canvas) {
+        this.canvas = canvas
+        //this.prerender();
+        setTimeout(() => { //roll this into a time out to push this down the event stack and be ran on the next event loop frame.
+            this.randomSites(1000,true);
+            this.render();
+        }, 10);
+        },
+
+    prerender: function() //allows use of a quick loading text
+    {
+        var ctx = this.canvas.getContext("2d");
+        ctx.fillStyle = "white"
+        ctx.textAlign = "center"
+        ctx.font = "50px Arial";
+        ctx.fillText("Loading...",this.canvas.width/2,this.canvas.height/2);
         },
 
     benchmarkToggle: function() {
@@ -172,7 +184,10 @@ var RandomMapRender = {
         ctx.stroke();
         // edges
         ctx.beginPath();
-        ctx.fillStyle = 'red';
+        ctx.fillStyle = 'rgb('+
+        Math.floor(Math.random()*256)+','+ //r
+        Math.floor(Math.random()*256)+','+ //g
+        Math.floor(Math.random()*256)+')'; //b
         var vertices = this.diagram.vertices,
             iVertex = vertices.length;
         while (iVertex--) {
@@ -221,4 +236,5 @@ var RandomMapRender = {
             ctx.fill();
         },
     };
-    RandomMapRender.init();
+//RandomMapRender.init();
+rndContainor = document.querySelector("#RandomMap")
