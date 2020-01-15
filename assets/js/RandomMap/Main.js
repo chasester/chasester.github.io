@@ -276,3 +276,4 @@ function handleResize()
     canvas.width = width;
     canvas.height = width*(9/16);
 } */
+    //rndContainor.innerHTML = `<canvas width=${width} height=${width*(9/16)}> COULD NOT LOAD CANVAS </canvas>`
