@@ -17,7 +17,7 @@ History: See https://github.com/gorhill/Javascript-Voronoi/CHANGELOG.md
 
 /*
  * Random Continental map version by Chase Wenner
- * Used as is with small modifications
+ * Used as is with Heavy modifications
  * Permission to use, copy, modify, and distribute this software for any
  * purpose without fee is hereby granted, provided that this entire notice
  * is included in all copies of any software which is or includes a copy
@@ -34,7 +34,7 @@ var RandomMapRender = {
     voronoi: new Voronoi(),
     sites: [],
     diagram: null,
-    margin: 0.15,
+    margin: 0.001,
     canvas: null,
     bbox: {xl:0,xr:800,yt:0,yb:600},
     benchmarkTimer: null,
@@ -59,65 +59,6 @@ var RandomMapRender = {
         ctx.font = "50px Arial";
         ctx.fillText("Loading...",this.canvas.width/2,this.canvas.height/2);
         },
-
-    benchmarkToggle: function() {
-        if ( this.benchmarkTimer ) {
-            this.benchmarkStop();
-            }
-        else {
-            this.benchmarkStart();
-            }
-        },
-
-    benchmarkStart: function() {
-        this.benchmarkMaxSites = Math.floor(parseFloat(document.getElementById('voronoiNumberSites').value));
-        this.benchmarkPointer = 0;
-        this.benchmarkTimer = setTimeout(this.benchmarkDo, 250);
-        document.getElementById('voronoiBenchmark').value = 'Stop';
-        },
-
-    benchmarkDo: function() {
-        var vd = VoronoiDemo;
-        vd.randomSites(vd.benchmarkMaxSites, true);
-        vd.render();
-        vd.benchmarkTimes[vd.benchmarkPointer] = vd.diagram.execTime;
-        vd.benchmarkPointer++;
-        if ( vd.benchmarkPointer < vd.benchmarkTimes.length ) {
-            document.getElementById('benchmarkResult').innerHTML = new Array(vd.benchmarkTimes.length-vd.benchmarkPointer+1).join('.');
-            vd.benchmarkTimer = setTimeout(vd.benchmarkDo, 250);
-            }
-        else {
-            vd.benchmarkStop();
-            }
-        },
-
-    benchmarkStop: function() {
-        if ( this.benchmarkTimer ) {
-            clearTimeout(this.benchmarkTimer);
-            this.benchmarkTimer = null;
-            }
-        var sum = 0;
-        var fastest = Number.MAX_VALUE;
-        var slowest = -Number.MAX_VALUE;
-        this.benchmarkTimes.map(function(v){
-            sum += v;
-            fastest = Math.min(v, fastest);
-            slowest = Math.max(v, slowest);
-            });
-        sum -= fastest;
-        sum -= slowest;
-        var avg = sum / (this.benchmarkPointer-2);
-        document.getElementById('benchmarkResult').innerHTML =
-            'average exec time for ' +
-            this.benchmarkMaxSites +
-            ' sites = ' +
-            avg.toFixed(1) + ' ms ' +
-            ' (' + (avg*1000/this.benchmarkMaxSites).toFixed(1) + ' µs/site)' +
-            ', fastest = ' + fastest + ' ms, slowest = ' + slowest + ' ms.'
-            ;
-        document.getElementById('voronoiBenchmark').value = 'Benchmark';
-        },
-
     clearSites: function() {
         this.sites = [];
         this.diagram = this.voronoi.compute(this.sites, this.bbox);
@@ -156,7 +97,7 @@ var RandomMapRender = {
         e.innerHTML = '('+this.diagram.cells.length+' Voronoi cells computed from '+this.diagram.cells.length+' Voronoi sites in '+this.diagram.execTime+' ms &ndash; rendering <i>not</i> included)';
         },
 
-    render: function() {
+    render: function(diagram) {
         var ctx = this.canvas.getContext('2d');
         // background
         ctx.globalAlpha = 1;
@@ -167,11 +108,11 @@ var RandomMapRender = {
         ctx.strokeStyle = '#888';
         ctx.stroke();
         // voronoi
-        if (!this.diagram) {return;}
+        if (!diagram) {console.log("hello");return;}
         // edges
         ctx.beginPath();
         ctx.strokeStyle = '#000';
-        var edges = this.diagram.edges,
+        var edges = diagram.edges,
             iEdge = edges.length,
             edge, v;
         while (iEdge--) {
@@ -184,11 +125,11 @@ var RandomMapRender = {
         ctx.stroke();
         // edges
         ctx.beginPath();
-        ctx.fillStyle = 'rgb('+
+        ctx.fillStyle = "Red"; /* 'rgb('+
         Math.floor(Math.random()*256)+','+ //r
         Math.floor(Math.random()*256)+','+ //g
-        Math.floor(Math.random()*256)+')'; //b
-        var vertices = this.diagram.vertices,
+        Math.floor(Math.random()*256)+')'; //b */
+        var vertices = diagram.vertices,
             iVertex = vertices.length;
         while (iVertex--) {
             v = vertices[iVertex];
@@ -196,21 +137,24 @@ var RandomMapRender = {
             }
         ctx.fill();
         // sites
-        ctx.beginPath();
-        ctx.fillStyle = '#44f';
-        var sites = this.sites,
+       ctx.beginPath();
+         ctx.fillStyle = '#44f';
+        var sites = diagram.cells,
             iSite = sites.length;
         while (iSite--) {
             v = sites[iSite];
-            ctx.rect(v.x-2/3,v.y-2/3,2,2);
+            this.renderCell(
+                v,
+             'rgb('+
+                Math.floor(random.hash(v.site.voronoiId)*256)+','+ //r
+                Math.floor(random.hash( v.site.voronoiId >> 3)*256)+','+ //g
+                Math.floor(random.hash( v.site.voronoiId >> 6)*256)+')' //b
+            );
             }
         ctx.fill();
         },
         
-        renderCell: function(id, fillStyle, strokeStyle) {
-            if (id === undefined) {return;}
-            if (!this.diagram) {return;}
-            var cell = this.diagram.cells[id];
+        renderCell: function(cell, fillStyle) {
             if (!cell) {return;}
             var ctx = this.canvas.getContext('2d');
             ctx.globalAlpha = 1;
@@ -225,9 +169,9 @@ var RandomMapRender = {
                 ctx.lineTo(v.x,v.y);
                 }
             ctx.fillStyle = fillStyle;
-            ctx.strokeStyle = strokeStyle;
+            //ctx.strokeStyle = strokeStyle;
             ctx.fill();
-            ctx.stroke();
+            //ctx.stroke();
             // site
             v = cell.site;
             ctx.fillStyle = '#44f';

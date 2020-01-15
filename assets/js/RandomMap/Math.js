@@ -63,11 +63,11 @@ class Vec2
     }
     len() //vector length
     {
-        return sqrt(this.sqlen);
+        return Math.sqrt(this.sqlen);
     }
     dist(v) //distance from v to this vector [shortest path]
     {
-        return len(new Vec2(this.x - v.x, this.y- v.y))
+        return this.len(new Vec2(this.x - v.x, this.y- v.y))
     }
     equalTo(v)
     {
@@ -101,4 +101,5 @@ class Rect
     }
     width = () => Math.abs(this.maxX - this.minX); //just in case some one is sill and defines these wrong
     height = () => Math.abs(this.maxY - this.minY);
+    convertxxyy() {return {xl: this.minX, xr: this.maxX, yt: this.minY, yb: this.maxY};} //convertions to voronoi aabb
 }

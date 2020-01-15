@@ -5,9 +5,9 @@
 var STEP_FUNC = //string function types which allow us to to do dynamic step calling
 {
     "Init": "GenerateSites", //init only runs on the first pass
-    "GenerateSites": "CreateVoronoi",
-    "CreateVoronoi": "RelaxVoronoi",
-    "RelaxVoronoi": "HeightGeneration",
+    "GenerateSites": "LloydRelaxation",
+    "LloydRelaxation": "PatelRelaxation",
+    "PatelRelaxation": "HeightGeneration",
     "HeightGeneration": "LandBuilding",
     "LandBuilding": "CoastalCleanup",
     "CoastalCleanup": "TerrianNormalization",
@@ -20,16 +20,19 @@ class RandomMap
 {
     constructor()
     {
-        this.graph = new Voronoi(); //external library class
-        this.corners = []; //list of internal corners
-        this.cells = []; //list of internal cells
-        this.sites = []; //list of internal vec2 points randomly picked from seed
-        this.edges = []  //list of internal edges
-
+        this.Voronoi = new Voronoi(); //external library class
+        this.diagram = null; //diagram is the data from the voronoi class
+        this.graph ={ //this is our interal storage of the data we get from the graph set up exactly the same as the diagram but with internal class variables
+        corners: [], //list of internal corners
+        cells: [], //list of internal cells
+        sites: [], //list of internal vec2 points randomly picked from seed
+        edges: []  //list of internal edges
+        }
+        this.shouldRender = true;
+        this.dataStack = {}; //this is a raw stack of data that each function can create to basically store on leaving the function for the next frame
         this.funcStep = "Init"; //start with an init function;
         this.isRunning = false; // allow to recycle to next step or should we stop recursively calling
         this.stepId = 0; //id 0 means that we are starting from the begining of the cycles
-        this.graph = new Voronoi();
         this.status = "Ready";
         this.bounds = new Rect(0,0,1,1); //dont set up bounds until we get a canvas
         this.props =  // list of props given to the user, set to default (obviously);
@@ -45,7 +48,7 @@ class RandomMap
             "Perlin Weight": [0.0, 0.32, 1.0], //set this slightly above sea level so we get some islands randomly sprinkled
             "Center Weight": [0.0, 0.68, 1.0], //this and the above must equal 1.0 Done this way so you can add more methods as weights
             "Coast Clean Irrations": [1,5,20],
-            "Cell Percentage": [0.0001, 3.0, 15],
+            "Cell Percentage": [0.0001, 1.0, 3.0],
             "Min Distance": [0.00001, 5, 10],
             "CoastalRoughness": [0.0001, 1.0, 5.0],
             "Normalizations Cycles": [-1, 3, 5],
@@ -54,7 +57,7 @@ class RandomMap
             "Rain Fall Average": [0.0, 4.0, 10.0],
 
             "Voronoi Properties": [],
-            "LLOYD Irrations": [0, 2, 5],
+            "LLOYD Irrations": [0, 3, 20],
             "PATEL Irrations": [0, 4, 10],
 
             "Heigh Point Properties": [],
@@ -91,7 +94,7 @@ class RandomMap
         return;
     }
     
-    GenerateMap(canvas=null)
+    GenerateMap(canvas)
     {
         //FUNCTION SELECTOR WHICH WILL CALL ITS SELF RECURSIVELY
         // if function returns false then map generator will move to next step
@@ -100,29 +103,123 @@ class RandomMap
         // this will create a animation which will help people see how the algorithm builds
         if(this[this.funcStep]() == false)
         {
+            this.dataStack = {}; //reset data stack so we dont have collisions
             this.funcStep = STEP_FUNC[this.funcStep]; //stack the next step into the slot for next cycle
         }
-       RandomMapRender.render();
+
+        if(this.shouldRender) RandomMapRender.render(this.diagram); //only render if we should render so we dont get weird rerender glitch
     }
     //function in order of Step Functions
     Init()
     {
         this.canvas = canvas; //keep a reference just in case
         this.bounds = new Rect(0,0,canvas.width, canvas.height);
-        RandomMapRender.init(canvas, this.graph); 
+        RandomMapRender.init(canvas, this.diagram);
         return false;
     }
     GenerateSites()
     {
-       return false;
+        let margin = 500; //some padding so we dont go to far
+        let height = this.bounds.height() - margin*2;
+        let width = this.bounds.width() - margin*2;
+        let sitenumber = Math.max((width * height * this.props["Cell Percentage"][1]* 0.01),3);
+        let irr = Math.min(sitenumber-this.graph.sites.length,100); //only do 10 at a time
+        for(let i = 0; i < irr; i++)
+        {
+            this.graph.sites.push(new Vec2(random.random()*this.bounds.width() + random.random()/this.bounds.width(), random.random()*this.bounds.height() + random.random()/this.bounds.height()));
+        }
+        this.Voronoi.recycle(this.diagram);
+        this.diagram = this.Voronoi.compute(this.graph.sites, this.bounds.convertxxyy() );
+        
+        //this.graph = this.diagram;
+        
+        return this.graph.sites.length < sitenumber;
     }
-    CreateVoronoi()
-    {
-       return false;
+    LloydRelaxation()
+    { // most of this function is a direct pull from raymond hills work with small modifications to work with this system
+        //Found minor bugs so needed a way to patch them and allow user more flexiblity with not fully relaxing graph if desired.
+        let cells = this.diagram.cells,
+        iCell = cells.length,
+        cell,
+        site, sites = [],
+        again = false,
+        rn, dist;
+        let p = 1 / iCell *0.1;
+        this.dataStack.irr = this.dataStack.irr ? this.dataStack.irr + 1 : 1; //set up our data stack and then add new data too it
+        //support function  
+        let cellCentroid = function(cell) {
+            //support function
+            let cellArea = function(cell) {
+                var area = 0,
+                    halfedges = cell.halfedges,
+                    iHalfedge = halfedges.length,
+                    halfedge,
+                    p1, p2;
+                while (iHalfedge--) {
+                    halfedge = halfedges[iHalfedge];
+                    p1 = halfedge.getStartpoint();
+                    p2 = halfedge.getEndpoint();
+                    area += p1.x * p2.y;
+                    area -= p1.y * p2.x;
+                    }
+                area /= 2;
+                return area;
+            }
+            var x = 0, y = 0,
+                halfedges = cell.halfedges,
+                iHalfedge = halfedges.length,
+                halfedge,
+                v, p1, p2;
+            while (iHalfedge--) {
+                halfedge = halfedges[iHalfedge];
+                p1 = halfedge.getStartpoint();
+                p2 = halfedge.getEndpoint();
+                v = p1.x*p2.y - p2.x*p1.y;
+                x += (p1.x+p2.x) * v;
+                y += (p1.y+p2.y) * v;
+                }
+            v = cellArea(cell) * 6;
+            return {x:x/v,y:y/v};
+            }
+
+        while (iCell--)
+        {
+            cell = cells[iCell];
+            rn = random.random();
+            // probability of apoptosis
+            if (rn < p) {
+                continue;
+                }
+            site = cellCentroid(cell);
+            dist = new Vec2(site.x, site.y).dist(cell.site);
+            dist = isNaN(dist) ? 0.000001 : dist;
+            again = again || dist > 0.01;
+            // don't relax too fast
+            if (dist > 2) {
+                site.x = (site.x+cell.site.x)/2;
+                site.y = (site.y+cell.site.y)/2;
+                }
+            // probability of mytosis
+            if (rn > (1-p)) {
+                dist /= 2;
+                sites.push({
+                    x: site.x+(site.x-cell.site.x)/dist,
+                    y: site.y+(site.y-cell.site.y)/dist,
+                    });
+                }
+            sites.push(site);
+        }
+
+        if(sites.filter(x => isNaN(x.x) || isNaN(x.y)).length > 0) return false; //fixes a bug where a site becomes NaN and kills all other sites onces all sites have been relaxed
+        console.log(this.diagram);
+        this.graph.sites = sites;
+        this.Voronoi.recycle(this.diagram);
+        this.diagram = this.Voronoi.compute(this.graph.sites, this.bounds.convertxxyy());
+        return this.dataStack.irr < this.props["LLOYD Irrations"][1] ; //basically dont over do relaxation to give user control over the Uniformity of cell regions
     }
-    RelaxVoronoi()
+    PatelRelaxation()
     {
-       return false;
+        return false;
     }
     HeightGeneration()
     {
@@ -146,7 +243,8 @@ class RandomMap
     }
     WaterSheding()
     {
-       return false;
+        this.shouldRender = false;
+        return true;
     }
 }
 
@@ -155,33 +253,26 @@ class RandomMap
 rndContainor = document.querySelector("article#RandomMap")
 var Map = new RandomMap(); //first instance of class built on load of file;
 
-
-setTimeout(handleResize, 100);
-let canvas = null;
-console.log(rndContainor.offsetWidth);
+var canvas;
+canvas =  rndContainor.querySelector("canvas");
+//setTimeout(handleResize, 100);
 
 if(rndContainor)
     setInterval(function () {
-        console.log(rndContainor.offsetWidth);
         if(rndContainor.className === "active" && canvas)
         {
             Map.GenerateMap(canvas);
-            console.log(canvas);
         }
-}, 10);
+}, 100);
 else
     console.error("could not mount canvas to dom, this could be due to browser incompatiblity");
 
-window.addEventListener("resize", handleResize);
+/* window.addEventListener("resize", handleResize);
 
 function handleResize()
 {
-    let width = rndContainor.offsetWidth*0.8;
+    let width = rndContainor.offsetWidth*1.1;
     canvas = rndContainor.querySelector("canvas");
     canvas.width = width;
     canvas.height = width*(9/16);
-    //rndContainor.innerHTML = `<canvas width=${width} height=${width*(9/16)}> COULD NOT LOAD CANVAS </canvas>`
-
-    setTimeout(()=>{ }, 200 ); //wait for everything then update canvas object
-    
-}
+} */
