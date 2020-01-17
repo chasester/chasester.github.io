@@ -44,11 +44,7 @@ var RandomMapRender = {
 
     init: function(canvas) {
         this.canvas = canvas
-        //this.prerender();
-        setTimeout(() => { //roll this into a time out to push this down the event stack and be ran on the next event loop frame.
-            this.randomSites(1000,true);
-            this.render();
-        }, 10);
+        this.prerender();
         },
 
     prerender: function() //allows use of a quick loading text
@@ -59,36 +55,6 @@ var RandomMapRender = {
         ctx.font = "50px Arial";
         ctx.fillText("Loading...",this.canvas.width/2,this.canvas.height/2);
         },
-    clearSites: function() {
-        this.sites = [];
-        this.diagram = this.voronoi.compute(this.sites, this.bbox);
-        this.updateStats();
-        },
-
-    randomSites: function(n,clear) {
-        if (clear) {this.sites = [];}
-        // create vertices
-        var xmargin = this.canvas.width*this.margin,
-            ymargin = this.canvas.height*this.margin,
-            xo = xmargin,
-            dx = this.canvas.width-xmargin*2,
-            yo = ymargin,
-            dy = this.canvas.height-ymargin*2;
-        for (var i=0; i<n; i++) {
-            this.sites.push({
-                x: xo + Math.random()*dx + Math.random()/dx,
-                y: yo + Math.random()*dy + Math.random()/dy
-                });
-            }
-        this.voronoi.recycle(this.diagram);
-        this.diagram = this.voronoi.compute(this.sites, this.bbox);
-        this.updateStats();
-        },
-
-    recompute: function() {
-        this.diagram = this.voronoi.compute(this.sites, this.bbox);
-        this.updateStats();
-        },
 
     updateStats: function() {
         if (!this.diagram) {return;}
@@ -98,7 +64,8 @@ var RandomMapRender = {
         },
 
     render: function(diagram) {
-        /* var ctx = this.canvas.getContext('2d');
+        //old render using voronoi.js class functions
+        {/* var ctx = this.canvas.getContext('2d');
         // background
         ctx.globalAlpha = 1;
         ctx.beginPath();
@@ -148,7 +115,7 @@ var RandomMapRender = {
                 Math.floor(random.hash( v.site.voronoiId >> 6)*256)+')' //b
             );
             }
-        ctx.fill(); */
+        ctx.fill(); */}
 
         var ctx = this.canvas.getContext('2d');
         ctx.globalAlpha = 1;
@@ -166,7 +133,7 @@ var RandomMapRender = {
         //step two do validation
         //validate that we have data to render
         if(!diagram) return // this below function will use data as form from utils instead of voronio (above renders from voronoi data)
-        let setting = {showcorners: false, showedges: false, showsites: false} //this will be replaced by a paramater
+        let setting = {showcorners: false, showedges: false, showsites: true, showNeighbors: true} //this will be replaced by a paramater
         let cammatix = { 
             position: new Vec2(0,0), //upper Left corner of the camera;
             zoom: 1, //scale of the map 0.1 means everything is 1/10 the scale and 10 means that everything is 10 times as big
@@ -179,12 +146,13 @@ var RandomMapRender = {
         while(len--) // for each edge we will draw a triangle to->from->center this is due to our edges not knowing what order they connect in
         {
             x = arr[len];
-            let color = `rgb(${Math.random()*256},${Math.random()*256},${Math.random()*256})`;
-            if(!bounds.check(x.center)) continue; //if not in the bounds then dont add to contex
+            let h = random.hash(x.id);
+            let color = this.getFillStyle(x);
+            //if(!bounds.check(x.center)) continue; //if not in the bounds then dont add to contex
             ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
             x.borders.forEach(e => {
-                
-                ctx.fillStyle = color;
                 v = o.add(e.ends[0].position);
                 ctx.moveTo(v.x,v.y);
                 v = o.add(e.ends[1].position);
@@ -194,6 +162,7 @@ var RandomMapRender = {
                 
             });
             ctx.fill(); 
+            ctx.stroke(); //do stroke so that we get fully filled shapes with no antialising
             if(flag)
             {
                 v = o.add(x.center);
@@ -201,6 +170,19 @@ var RandomMapRender = {
                 ctx.beginPath();
                 ctx.rect(v.x-2/3,v.y-2/3,2,2);
                 ctx.fill();
+            }
+            if(setting.showNeighbors)
+            {
+                ctx.strokeStyle = "black";
+                let v1 = o.add(x.center);
+                x.neighbors.forEach(x=>
+                    {
+                        ctx.moveTo(v1.x,v1.y);
+                        v = o.add(x.center)
+                        ctx.lineTo(v.x,v.y);
+                    })
+                    ctx.stroke();
+                
             }
         }
         len = diagram.edges.length, arr = diagram.edges;
@@ -227,33 +209,10 @@ var RandomMapRender = {
         }  
         ctx.fill();
         },
-        
-        renderCell: function(cell, fillStyle) {
-            if (!cell) {return;}
-            var ctx = this.canvas.getContext('2d');
-            ctx.globalAlpha = 1;
-            // edges
-            ctx.beginPath();
-            var halfedges = cell.halfedges,
-                nHalfedges = halfedges.length,
-                v = halfedges[0].getStartpoint();
-            ctx.moveTo(v.x,v.y);
-            for (var iHalfedge=0; iHalfedge<nHalfedges; iHalfedge++) {
-                v = halfedges[iHalfedge].getEndpoint();
-                ctx.lineTo(v.x,v.y);
-                }
-            ctx.fillStyle = fillStyle;
-            //ctx.strokeStyle = strokeStyle;
-            ctx.fill();
-            //ctx.stroke();
-            // site
-            v = cell.site;
-            ctx.fillStyle = '#44f';
-            ctx.beginPath();
-            ctx.rect(v.x-2/3,v.y-2/3,2,2);
-            ctx.fill();
-        },
-        getFillStyle(){ return Math.random()*255*255*255}
+        getFillStyle(c){//will determine cell color by biome and elevation data
+            let r = random.hash(c.id)*50+185;
+            return `rgb(${r},${r},${r})`
+        }
     };
 //RandomMapRender.init();
 rndContainor = document.querySelector("#RandomMap")

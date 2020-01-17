@@ -6,8 +6,7 @@ var STEP_FUNC = //string function types which allow us to to do dynamic step cal
 {
     "Init": "GenerateSites", //init only runs on the first pass
     "GenerateSites": "LloydRelaxation",
-    "LloydRelaxation": "BuildCustomGraph",
-    "BuildCustomGraph": "PatelRelaxation",
+    "LloydRelaxation": "PatelRelaxation",
     "PatelRelaxation": "HeightGeneration",
     "HeightGeneration": "LandBuilding",
     "LandBuilding": "CoastalCleanup",
@@ -49,7 +48,7 @@ class RandomMap
             "Perlin Weight": [0.0, 0.32, 1.0], //set this slightly above sea level so we get some islands randomly sprinkled
             "Center Weight": [0.0, 0.68, 1.0], //this and the above must equal 1.0 Done this way so you can add more methods as weights
             "Coast Clean Irrations": [1,5,20],
-            "Cell Percentage": [0.0001, 1.0, 3.0],
+            "Cell Percentage": [0.0001, 0.1, 15.0],
             "Min Distance": [0.00001, 5, 10],
             "CoastalRoughness": [0.0001, 1.0, 5.0],
             "Normalizations Cycles": [-1, 3, 5],
@@ -58,7 +57,7 @@ class RandomMap
             "Rain Fall Average": [0.0, 4.0, 10.0],
 
             "Voronoi Properties": [],
-            "LLOYD Irrations": [0, 20, 20],
+            "LLOYD Irrations": [0, 3, 20],
             "PATEL Irrations": [0, 4, 10],
 
             "Heigh Point Properties": [],
@@ -94,7 +93,50 @@ class RandomMap
         prop = value; //once we done we can finalize it
         return;
     }
-    
+    BuildCustomGraph()//this is a support function for converting the voronoi.js class structure to a custom structure in utls (so we can have more free movement through the graph);
+    {
+        this.graph.cells =[];
+        this.graph.edges = [];
+        this.graph.corners = [];
+        if(!this.diagram) return false;
+        let cells = [],c1, c2,  //list of cells we are creating of type utils.cell
+        e, //of type utils.edge
+        gedge, gedges= this.diagram.edges, gcells = this.diagram.cells,  //of type voronoi.edge
+        iCell=gcells.length, iEdge=gedges.length, site;
+        //console.log(this.diagram)
+        //return false;
+        while(iCell--) cells.push(new Cell({x: -100000, y: -100000}, iCell));
+        while(iEdge--)
+        {
+            gedge = gedges[iEdge];
+            //if(!gedge || !gedge.rSite || !gedge.lSite) continue;
+            //for some reasong the cell sites arent lining up with the data given so we have to force it
+            site = gedge.lSite;
+            if(site)
+            {
+                c1 = cells[site.voronoiId];
+                c1.center.x = site.x;
+                c1.center.y = site.y;
+            } else c1 = new Cell({x: -100000, y: -10000}, -1);//should nv get here cuz algorithm only uses lsite as null
+            site = gedge.rSite;
+            if(site)
+            {
+                c2 = cells[site.voronoiId];
+                c2.center.x = site.x;
+                c2.center.y = site.y;
+            }else c2 = new Cell({x: -100000, y: -10000}, -1); //creates fake cell for borders so that we create an edges
+
+            e = new Edge(gedges[iEdge].vb, gedges[iEdge].va, c1, c2, iEdge, this.graph.corners);
+            this.graph.edges.push(e); //takes care of doing the edges;
+            //if(gedge.rSite.voronoiId == gedges.lSite.voronoiId) console.log("dub site");
+        }
+
+        let iCorner = this.graph.corners.length;
+        while(iCorner--)this.graph.corners[iCorner].GatherNeighbors();
+        this.graph.cells = cells;
+        //keep in mind all this function really does is builts the graph data from the diagram data
+        return false;
+    }
     GenerateMap(canvas) //main loop
     {
         //FUNCTION SELECTOR WHICH WILL CALL ITS SELF RECURSIVELY
@@ -122,14 +164,14 @@ class RandomMap
     }
     GenerateSites()
     {
-        let margin = 500; //some padding so we dont go to far
+        let margin = 10; //some padding so we dont go to far
         let height = this.bounds.height() - margin*2;
         let width = this.bounds.width() - margin*2;
-        let sitenumber = Math.max((width * height * this.props["Cell Percentage"][1]* 0.01),3);
+        let sitenumber = Math.min(Math.max((width * height * this.props["Cell Percentage"][1]* 0.001),3), 100000);
         let irr = Math.min(sitenumber-this.graph.sites.length,100); //only do 10 at a time
         for(let i = 0; i < irr; i++)
         {
-            this.graph.sites.push(new Vec2(random.random()*this.bounds.width() + random.random()/this.bounds.width(), random.random()*this.bounds.height() + random.random()/this.bounds.height()));
+            this.graph.sites.push(new Vec2(random.randomRange(this.bounds.minX+margin, this.bounds.maxX-margin),random.randomRange(this.bounds.minY+margin, this.bounds.maxY-margin)));
         }
         this.Voronoi.recycle(this.diagram);
         this.diagram = this.Voronoi.compute(this.graph.sites, this.bounds.convertxxyy() );
@@ -219,50 +261,6 @@ class RandomMap
         this.diagram = this.Voronoi.compute(this.graph.sites, this.bounds.convertxxyy());
         this.BuildCustomGraph()
         return this.dataStack.irr < this.props["LLOYD Irrations"][1] ; //basically dont over do relaxation to give user control over the Uniformity of cell regions
-    }
-    BuildCustomGraph()//this is a one pass function most likely as we are just gonna translate the data from one type to another here
-    {
-        this.graph.cells =[];
-        this.graph.edges = [];
-        this.graph.corners = [];
-        if(!this.diagram) return false;
-        let cells = [],c1, c2,  //list of cells we are creating of type utils.cell
-        e, //of type utils.edge
-        gedge, gedges= this.diagram.edges, gcells = this.diagram.cells,  //of type voronoi.edge
-        iCell=gcells.length, iEdge=gedges.length, site;
-        //console.log(this.diagram)
-        //return false;
-        while(iCell--) cells.push(new Cell({x: -100000, y: -10000}, iCell));
-        while(iEdge--)
-        {
-            gedge = gedges[iEdge];
-            //if(!gedge || !gedge.rSite || !gedge.lSite) continue;
-            //for some reasong the cell sites arent lining up with the data given so we have to force it
-            site = gedge.lSite;
-            if(site)
-            {
-                c1 = cells[site.voronoiId];
-                c1.center.x = site.x;
-                c1.center.y = site.y;
-            } else c1 = new Cell({x: -100000, y: -10000}, -1);//should nv get here cuz algorithm only uses lsite as null
-            site = gedge.rSite;
-            if(site)
-            {
-                c2 = cells[site.voronoiId];
-                c2.center.x = site.x;
-                c2.center.y = site.y;
-            }else c2 = new Cell({x: -100000, y: -10000}, -1); //creates fake cell for borders so that we create an edges
-
-            e = new Edge(gedges[iEdge].vb, gedges[iEdge].va, c1, c2, iEdge, this.graph.corners);
-            this.graph.edges.push(e); //takes care of doing the edges;
-            //if(gedge.rSite.voronoiId == gedges.lSite.voronoiId) console.log("dub site");
-        }
-
-        let iCorner = this.graph.corners.length;
-        while(iCorner--)this.graph.corners[iCorner].GatherNeighbors();
-        this.graph.cells = cells;
-        //keep in mind all this function really does is builts the graph data from the diagram data
-        return false;
     }
     PatelRelaxation() //from here are we are using types defined in Utls.js instead of Voronoi.js
     {

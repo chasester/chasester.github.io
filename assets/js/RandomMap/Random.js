@@ -2,7 +2,7 @@
 
 const random = 
 {
-    s: 100, //s is a seed at which point to start
+    s: 99, //s is a seed at which point to start
     t: 1 , //t is a hash always starting at zero that is changed over time
     hash: function(s) //is like random but the same s will always give the same number back
     {
@@ -18,6 +18,6 @@ const random =
         this.t++; // do this so t goes 1 then 2 then 3 etc then t becomes the number of times called
         return Math.abs((((this.s << 16) + t) % 100000)*0.00001).toFixed(4);
     },
-    randomRange: function(h,l) {return this.random() % (h-l)+l},
+    randomRange: function(l,h) {return this.random() * (h-l)+l},
     setSeed: (seed) => {s = seed; t = 1; } //when seed is reset reset t;
 }
