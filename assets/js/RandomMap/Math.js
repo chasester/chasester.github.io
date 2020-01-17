@@ -15,7 +15,7 @@ const SQRT2 = 7.071;
 
 //The following function is a simple macro like conversion function to help fix these issues
 //pretty strait forward so no point break it down;
-const floatObjectParser = (x,y) => ( y==undefined &&  typeof x ===  Number ? new vec2(x,x) : typeof x === Number ? new vec2(x,y) : new  vec2(x.x,x.y) );
+const floatObjectParser = (x,y) => ( y==undefined &&  typeof x ===  Number ? new Vec2(x,x) : typeof x === Number ? new Vec2(x,y) : new  Vec2(x.x,x.y) );
 
 
 class Vec2 
@@ -27,36 +27,36 @@ class Vec2
         this.x = parseFloat(x);
         this.y = parseFloat(y);
     }
-    add(x,y=undefined) 
+    add(v) 
     {
         //v is a new object
-        let v = floatObjectParser(x,y);
-        v.x += this.x;
-        v.y += this.y;
-        return v;
+        let p = {x: v.x, y: v.y}
+        p.x += this.x;
+        p.y += this.y;
+        return p;
         
     }
-    sub(x,y=undefined) 
+  /*   sub(x,y=undefined) 
     {
         let v = floatObjectParser(x,y);
         v.x -= this.x;
         v.y -= this.y;
         return v;
     }
-    mul()
+    mul(x,y=undefined) 
     {
         let v = floatObjectParser(x,y);
         v.x *= this.x;
         v.y *= this.y;
         return v;
     }
-    div()
+    div(x,y=undefined) 
     {
         let v = floatObjectParser(x,y);
         v.x /= this.x;
         v.y /= this.y;
         return v;
-    }
+    } */
     sqlen() //squared length
     {
         return Math.pow(this.x, 2) + Math.pow(this.y, 2);
@@ -102,4 +102,8 @@ class Rect
     width = () => Math.abs(this.maxX - this.minX); //just in case some one is sill and defines these wrong
     height = () => Math.abs(this.maxY - this.minY);
     convertxxyy() {return {xl: this.minX, xr: this.maxX, yt: this.minY, yb: this.maxY};} //convertions to voronoi aabb
+    check(v)//take in a positonal vector or object with and x,y key
+    {
+        return this.minX <= v.x && this.maxX >= v.x && this.minY <= v.y && this.maxY >= v.y; //simple aabb check
+    }
 }

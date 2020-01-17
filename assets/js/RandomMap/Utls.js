@@ -26,11 +26,12 @@ class Cell
 {
     constructor(position, index) //position is either an object {x,y} or vec2 and index is a unique id
     {
-        this.center = position;
+        this.center = new Vec2(position.x, position.y);
         this.borders = []; //this is will be of type edges
         this.corners = []; //this will be of type corners
         this.neighbors = [] //this will be of type cell
         this.id = index; // a unique id to help identify this cel
+        this.biome = 0;
     }
     RemoveNeighbors()
     {
@@ -67,12 +68,12 @@ class Cell
         //debuging code if we see some interesting double line errors
         //for (int i = 0; i < this.borders.length; i++) if (this.borders[i].isequal(edge)) return false; //so we dont add the same edge twice (idk how we could);
         this.borders.push(edge);
-        let cr = edge.corners; //be carefull here cuz we have no protection here
+        let cr = edge.ends; //be carefull here cuz we have no protection here
         let flag = false;
         for(let i = 0; i < 2; i++)
         {
             for(let j = 0; j < this.corners.length; j++)
-                if(this.corners[j].equalTo(cr[i])) //no opp overload so this is just corner1 == corner2 or corner position == corner2 position
+                if(this.corners[j].position.x == cr[i].position.x && this.corners[j].position.y == cr[i].position.y) //no opp overload so this is just corner1 == corner2 or corner position == corner2 position
                     flag = true;
             if(!flag) this.corners.push(cr[i]);
             flag = flag;
@@ -88,7 +89,7 @@ class Cell
     }
     isEqual(c)
     {
-        return c.position.isEqual(this.position);
+        return this.center.equalTo(c.center);
     }
 }
 
@@ -103,7 +104,7 @@ class Edge
         this.c1 = c1;
         this.c2 = c2;
         this.neighbors = []; //of edges;
-        this.m = this.calculateMidPoint(f1,t1); //create a mid point
+        this.m = new Midpoint(this, new Vec2(t1.x, t1.y).lerp(f1, 0.5)); //create a mid point
         this.ends = new Array(2);
         this.id = index;
         this.riverLevel = 0.0;
@@ -119,23 +120,23 @@ class Edge
             e = borders[i]; t2 = e.getTo(); f2 = e.getFrom();
             if(this.ends[0] == undefined) //keep in mind that undefined is null in most other languages in this case
             { //only run this one time after a true is fired
-                if(t1.equalTo(t2))      {this.ends[0] = e.ends[0]; this.ends[0].AddEdge(this); continue;}
-                else if(t1.equalTo(f2)) {this.ends[0] = e.ends[1]; this.ends[0].AddEdge(this); continue;}
+                if(new Vec2(t1.x, t1.y).equalTo(t2))      {this.ends[0] = e.ends[0]; this.ends[0].AddEdge(this); continue;}
+                else if(new Vec2(t1.x, t1.y).equalTo(f2)) {this.ends[0] = e.ends[1]; this.ends[0].AddEdge(this); continue;}
             }
             if(this.ends[1] == undefined)
             {
-                if(f1.equalTo(t2))      {this.ends[1] = e.ends[0]; this.ends[1].AddEdge(this); continue;}
-                else if(f1.equalTo(f2)) {this.ends[1] = e.ends[1]; this.ends[1].AddEdge(this); continue;}
+                if(new Vec2(f1.x, f1.y).equalTo(t2))      {this.ends[1] = e.ends[0]; this.ends[1].AddEdge(this); continue;}
+                else if(new Vec2(f1.x, f1.y).equalTo(f2)) {this.ends[1] = e.ends[1]; this.ends[1].AddEdge(this); continue;}
             }
-            if(ends[0] != undefined && ends[1] !== undefined){break;} //we found a corner for both ends so we are done;
+            if(this.ends[0] != undefined && this.ends[1] !== undefined){break;} //we found a corner for both ends so we are done;
         }
 
         //handle corners if not already defined
-        if(ends[0] == undefined){ ends[0] = new Corner(t1,corners.length, this); corners.push(this.ends[0]); }
-        if(ends[1] == undefined){ ends[1] = new Corner(f1, corners.length,this); corners.push(this.ends);}
+        if(this.ends[0] == undefined){ this.ends[0] = new Corner(t1,corners.length, this); corners.push(this.ends[0]); }
+        if(this.ends[1] == undefined){ this.ends[1] = new Corner(f1, corners.length,this); corners.push(this.ends[1]);}
 
         //handle cells
-        c1.AddEdge(this,c2); c2.AddEdge(this.c1);
+        c1.AddEdge(this,c2); c2.AddEdge(this,c1);
     }
 
     IsEdge(bounds) //type Rect, represets the bounds of the map, returns if edges end or start is on the edge of the bounds
@@ -150,7 +151,7 @@ class Edge
 
     getTo()  { return this.ends[0] != undefined ? this.ends[0].position : new Vec2(0,0);}
     getFrom(){ return this.ends[1] != undefined ? this.ends[1].position : new Vec2(0,0);}
-    getCells() { return [c1,c2]} //returns these as an array to make processing them easier
+    getCells() { return [this.c1,this.c2]} //returns these as an array to make processing them easier
 
     ClampEdge(bounds, center, radius) //bounds type rect center type vec2 radius type number;
     {
@@ -175,7 +176,7 @@ class Edge
     }
     calculatemidpoint(to, from) //both type of vector2
     {
-            return new Midpoint(this, to.lerp(from, 0.5)); //learping is an weighted average based on paramater 2 so 0.5 gives you the middle between 2 points;
+            return  //learping is an weighted average based on paramater 2 so 0.5 gives you the middle between 2 points;
     }
     disown()
     {
@@ -223,7 +224,7 @@ class Corner
         this.id = index;
         this.position = point;
         this.edges = [];   //edges
-        this.neighbor = []; //corners
+        this.neighbors = []; //corners
         this.touches = [];  //Cells
 
         this.AddEdge(e); //adds edge to edges array
@@ -238,7 +239,7 @@ class Corner
         {
             for (let i = 0; i < this.touches.length; i++)
                 if (this.touches[i].isEqual(cells[j])) { flag = true; break; }
-            if(!flag)this.touches.Add(cells[j]);
+            if(!flag)this.touches.push(cells[j]);
             flag = false;
         }
         return this;
@@ -251,8 +252,8 @@ class Corner
             for (let i = 0; i < 2; i++)
             {
                 if (c[i] == null) continue; //is map edge
-                if (c[i].position.isEqual(this.position)) continue;  //is me
-                this.neighbors.Add(c[i]); //else its some one else so add
+                if (c[i].isEqual(this)) continue;  //is me
+                this.neighbors.push(c[i]); //else its some one else so add
             }
         }
     }
@@ -292,6 +293,11 @@ class Corner
     HasTerrianValue()
     {
         return this.terrainType != TerrainType.NONE;
+    }
+    isEqual(c)
+    {
+        return this.position.x == c.position.x && this.position.y == c.position.y;
+        
     }
 }
 

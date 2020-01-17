@@ -98,7 +98,7 @@ var RandomMapRender = {
         },
 
     render: function(diagram) {
-        var ctx = this.canvas.getContext('2d');
+        /* var ctx = this.canvas.getContext('2d');
         // background
         ctx.globalAlpha = 1;
         ctx.beginPath();
@@ -108,7 +108,7 @@ var RandomMapRender = {
         ctx.strokeStyle = '#888';
         ctx.stroke();
         // voronoi
-        if (!diagram) {console.log("hello");return;}
+        if (!diagram) {return;}
         // edges
         ctx.beginPath();
         ctx.strokeStyle = '#000';
@@ -125,10 +125,7 @@ var RandomMapRender = {
         ctx.stroke();
         // edges
         ctx.beginPath();
-        ctx.fillStyle = "Red"; /* 'rgb('+
-        Math.floor(Math.random()*256)+','+ //r
-        Math.floor(Math.random()*256)+','+ //g
-        Math.floor(Math.random()*256)+')'; //b */
+        ctx.fillStyle = "Red"; 
         var vertices = diagram.vertices,
             iVertex = vertices.length;
         while (iVertex--) {
@@ -151,6 +148,83 @@ var RandomMapRender = {
                 Math.floor(random.hash( v.site.voronoiId >> 6)*256)+')' //b
             );
             }
+        ctx.fill(); */
+
+        var ctx = this.canvas.getContext('2d');
+        ctx.globalAlpha = 1;
+        //step one clear the buffer
+        // background reset the buffer with the base color to clear the screen
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.rect(0,0,this.canvas.width,this.canvas.height);
+        ctx.fillStyle = 'black';
+        ctx.fill();
+        //adds fancy border
+        ctx.strokeStyle = '#888';
+        ctx.stroke();
+        
+        //step two do validation
+        //validate that we have data to render
+        if(!diagram) return // this below function will use data as form from utils instead of voronio (above renders from voronoi data)
+        let setting = {showcorners: false, showedges: false, showsites: false} //this will be replaced by a paramater
+        let cammatix = { 
+            position: new Vec2(0,0), //upper Left corner of the camera;
+            zoom: 1, //scale of the map 0.1 means everything is 1/10 the scale and 10 means that everything is 10 times as big
+            //rotation: {x1,x2,x3,  y1,y2,y3,  z1,z2,z3} //maybe add this
+        }
+        //bounds is our basic box which the camera is viewing currently, dont send things to the contex render if they arnt visible
+        let bounds = new Rect(cammatix.position.x, cammatix.position.y,cammatix.position.x + canvas.width, cammatix.position.y + canvas.height);
+
+        let len = diagram.cells.length, arr = diagram.cells, x,v, flag = setting.showsites,o = new Vec2(-bounds.minX,-bounds.minY); //passing in negative so an add is a sub
+        while(len--) // for each edge we will draw a triangle to->from->center this is due to our edges not knowing what order they connect in
+        {
+            x = arr[len];
+            let color = `rgb(${Math.random()*256},${Math.random()*256},${Math.random()*256})`;
+            if(!bounds.check(x.center)) continue; //if not in the bounds then dont add to contex
+            ctx.beginPath();
+            x.borders.forEach(e => {
+                
+                ctx.fillStyle = color;
+                v = o.add(e.ends[0].position);
+                ctx.moveTo(v.x,v.y);
+                v = o.add(e.ends[1].position);
+                ctx.lineTo(v.x,v.y);
+                v = o.add(x.center);
+                ctx.lineTo(v.x,v.y);
+                
+            });
+            ctx.fill(); 
+            if(flag)
+            {
+                v = o.add(x.center);
+                ctx.fillStyle = '#44f';
+                ctx.beginPath();
+                ctx.rect(v.x-2/3,v.y-2/3,2,2);
+                ctx.fill();
+            }
+        }
+        len = diagram.edges.length, arr = diagram.edges;
+        ctx.strokeStyle = "White";
+        if(setting.showedges )while(len--)
+        {
+            x = arr[len].ends[0].position;
+            v = arr[len].ends[1].position;
+            if(!bounds.check(x) && !bounds.check(v)) continue; //only skip if both ends are not visible;
+            x = o.add(x);
+            v = o.add(v);
+            ctx.moveTo(x.x, x.y);
+            ctx.lineTo(v.x, v.y);
+        }
+        ctx.stroke();
+        ctx.fillStyle = "Black"
+        len = diagram.corners.length, arr = diagram.corners, x;
+        if(setting.showcorners)while(len--)
+        {
+            v = o.add(arr[len].position);
+            ctx.beginPath();
+            ctx.rect(v.x-2/3,v.y-2/3,2,2);
+            ctx.fill();
+        }  
         ctx.fill();
         },
         
@@ -179,6 +253,7 @@ var RandomMapRender = {
             ctx.rect(v.x-2/3,v.y-2/3,2,2);
             ctx.fill();
         },
+        getFillStyle(){ return Math.random()*255*255*255}
     };
 //RandomMapRender.init();
 rndContainor = document.querySelector("#RandomMap")
