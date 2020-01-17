@@ -48,7 +48,7 @@ class RandomMap
             "Perlin Weight": [0.0, 0.32, 1.0], //set this slightly above sea level so we get some islands randomly sprinkled
             "Center Weight": [0.0, 0.68, 1.0], //this and the above must equal 1.0 Done this way so you can add more methods as weights
             "Coast Clean Irrations": [1,5,20],
-            "Cell Percentage": [0.0001, 0.1, 15.0],
+            "Cell Percentage": [0.0001, 3, 15.0],
             "Min Distance": [0.00001, 5, 10],
             "CoastalRoughness": [0.0001, 1.0, 5.0],
             "Normalizations Cycles": [-1, 3, 5],
@@ -168,7 +168,7 @@ class RandomMap
         let height = this.bounds.height() - margin*2;
         let width = this.bounds.width() - margin*2;
         let sitenumber = Math.min(Math.max((width * height * this.props["Cell Percentage"][1]* 0.001),3), 100000);
-        let irr = Math.min(sitenumber-this.graph.sites.length,100); //only do 10 at a time
+        let irr = Math.min(sitenumber-this.graph.sites.length,100); //only do 100 at a time
         for(let i = 0; i < irr; i++)
         {
             this.graph.sites.push(new Vec2(random.randomRange(this.bounds.minX+margin, this.bounds.maxX-margin),random.randomRange(this.bounds.minY+margin, this.bounds.maxY-margin)));
