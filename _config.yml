@@ -1,2 +1,3 @@
-touch _config.yml
-touch index.html 
+---
+permalink: /404.html
+---
