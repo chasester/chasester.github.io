@@ -133,16 +133,17 @@ var RandomMapRender = {
         //step two do validation
         //validate that we have data to render
         if(!diagram) return // this below function will use data as form from utils instead of voronio (above renders from voronoi data)
-        let setting = {showcorners: false, showedges: false, showsites: true, showNeighbors: true} //this will be replaced by a paramater
+        let setting = {showcorners: true, showedges: true, showsites: true, showNeighbors: true} //this will be replaced by a paramater
         let cammatix = { 
             position: new Vec2(0,0), //upper Left corner of the camera;
             zoom: 1, //scale of the map 0.1 means everything is 1/10 the scale and 10 means that everything is 10 times as big
             //rotation: {x1,x2,x3,  y1,y2,y3,  z1,z2,z3} //maybe add this
         }
         //bounds is our basic box which the camera is viewing currently, dont send things to the contex render if they arnt visible
-        let bounds = new Rect(cammatix.position.x, cammatix.position.y,cammatix.position.x + canvas.width, cammatix.position.y + canvas.height);
+        let bounds = new Rect(cammatix.position.x, cammatix.position.y,(cammatix.position.x + canvas.width)/cammatix.zoom, (cammatix.position.y + canvas.height)/cammatix.zoom);
 
-        let len = diagram.cells.length, arr = diagram.cells, x,v, flag = setting.showsites,o = new Vec2(-bounds.minX,-bounds.minY); //passing in negative so an add is a sub
+        let len = diagram.cells.length, arr = diagram.cells, x,v, flag = setting.showsites,
+        o = new Vec2(-bounds.minX,-bounds.minY), z = new Vec2(cammatix.zoom, cammatix.zoom); //passing in negative so an add is a sub
         while(len--) // for each edge we will draw a triangle to->from->center this is due to our edges not knowing what order they connect in
         {
             x = arr[len];
@@ -153,11 +154,11 @@ var RandomMapRender = {
             ctx.fillStyle = color;
             ctx.strokeStyle = color;
             x.borders.forEach(e => {
-                v = o.add(e.ends[0].position);
-                ctx.moveTo(v.x,v.y);
-                v = o.add(e.ends[1].position);
+                v = o.add(e.ends[0].position).mul(z);
+                ctx.moveTo(v.x,v.y)
+                v = o.add(e.ends[1].position).mul(z);
                 ctx.lineTo(v.x,v.y);
-                v = o.add(x.center);
+                v = o.add(x.center).mul(z);
                 ctx.lineTo(v.x,v.y);
                 
             });
@@ -166,48 +167,63 @@ var RandomMapRender = {
             if(flag)
             {
                 v = o.add(x.center);
-                ctx.fillStyle = '#44f';
+                ctx.fillStyle = 'Red';
                 ctx.beginPath();
                 ctx.rect(v.x-2/3,v.y-2/3,2,2);
                 ctx.fill();
             }
-            if(setting.showNeighbors)
+        }
+        
+        
+        if(setting.showedges )
+        {
+            len = diagram.edges.length, arr = diagram.edges;
+            ctx.strokeStyle = "Black";
+            while(len--)
             {
-                ctx.strokeStyle = "black";
-                let v1 = o.add(x.center);
-                x.neighbors.forEach(x=>
-                    {
-                        ctx.moveTo(v1.x,v1.y);
-                        v = o.add(x.center)
-                        ctx.lineTo(v.x,v.y);
-                    })
-                    ctx.stroke();
-                
+                x = arr[len].ends[0].position;
+                v = arr[len].ends[1].position;
+                if(!bounds.check(x) && !bounds.check(v)) continue; //only skip if both ends are not visible;
+                x = o.add(x);
+                v = o.add(v);
+                ctx.moveTo(x.x, x.y);
+                ctx.lineTo(v.x, v.y);
             }
+            ctx.stroke();
         }
-        len = diagram.edges.length, arr = diagram.edges;
-        ctx.strokeStyle = "White";
-        if(setting.showedges )while(len--)
+        if(setting.showcorners)
         {
-            x = arr[len].ends[0].position;
-            v = arr[len].ends[1].position;
-            if(!bounds.check(x) && !bounds.check(v)) continue; //only skip if both ends are not visible;
-            x = o.add(x);
-            v = o.add(v);
-            ctx.moveTo(x.x, x.y);
-            ctx.lineTo(v.x, v.y);
-        }
-        ctx.stroke();
-        ctx.fillStyle = "Black"
-        len = diagram.corners.length, arr = diagram.corners, x;
-        if(setting.showcorners)while(len--)
-        {
-            v = o.add(arr[len].position);
-            ctx.beginPath();
-            ctx.rect(v.x-2/3,v.y-2/3,2,2);
+            len = diagram.corners.length, arr = diagram.corners, x;
+            ctx.fillStyle = "blue"
+            while(len--)
+            {
+                v = o.add(arr[len].position);
+                ctx.beginPath();
+                ctx.rect(v.x-2/3,v.y-2/3,2,2);
+                ctx.fill();
+            }  
             ctx.fill();
-        }  
-        ctx.fill();
+        }
+        if(setting.showNeighbors)
+        {
+            len = diagram.cells.length, arr = diagram.cells;
+            let v1;
+            ctx.strokeStyle = "black";
+            while(len--){
+                x = arr[len];
+                v1 = o.add(x.center);
+                x.neighbors.forEach(n=>
+                {
+                    if(n.id == -1) return;
+                    ctx.moveTo(v1.x,v1.y);
+                    v = o.add(n.center)
+                    ctx.lineTo(v.x,v.y);
+                })
+            }
+            ctx.stroke();
+            
+        }
+
         },
         getFillStyle(c){//will determine cell color by biome and elevation data
             let r = random.hash(c.id)*50+185;

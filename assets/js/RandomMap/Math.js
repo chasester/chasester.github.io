@@ -30,33 +30,33 @@ class Vec2
     add(v) 
     {
         //v is a new object
-        let p = {x: v.x, y: v.y}
+        let p = new Vec2(v.x,v.y)
         p.x += this.x;
         p.y += this.y;
         return p;
         
     }
-  /*   sub(x,y=undefined) 
+    sub(v) 
     {
-        let v = floatObjectParser(x,y);
-        v.x -= this.x;
-        v.y -= this.y;
-        return v;
+        let p = new Vec2(v.x,v.y)
+        p.x -= this.x;
+        p.y -= this.y;
+        return p;
     }
-    mul(x,y=undefined) 
+    mul(v) 
     {
-        let v = floatObjectParser(x,y);
-        v.x *= this.x;
-        v.y *= this.y;
-        return v;
+        let p = new Vec2(v.x,v.y)
+        p.x *= this.x;
+        p.y *= this.y;
+        return p;
     }
-    div(x,y=undefined) 
+    div(v) 
     {
-        let v = floatObjectParser(x,y);
-        v.x /= this.x;
-        v.y /= this.y;
-        return v;
-    } */
+        let p = new Vec2(v.x,v.y)
+        p.x /= this.x;
+        p.y /= this.y;
+        return p;
+    }
     sqlen() //squared length
     {
         return Math.pow(this.x, 2) + Math.pow(this.y, 2);
