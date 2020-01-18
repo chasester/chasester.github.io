@@ -50,6 +50,10 @@ var RandomMapRender = {
     prerender: function() //allows use of a quick loading text
     {
         var ctx = this.canvas.getContext("2d");
+        ctx.beginPath();
+        ctx.rect(0,0,this.canvas.width,this.canvas.height);
+        ctx.fillStyle = 'black';
+        ctx.fill();
         ctx.fillStyle = "white"
         ctx.textAlign = "center"
         ctx.font = "50px Arial";
@@ -118,7 +122,6 @@ var RandomMapRender = {
         ctx.fill(); */}
 
         var ctx = this.canvas.getContext('2d');
-        ctx.globalAlpha = 1;
         //step one clear the buffer
         // background reset the buffer with the base color to clear the screen
         ctx.globalAlpha = 1;
@@ -133,7 +136,7 @@ var RandomMapRender = {
         //step two do validation
         //validate that we have data to render
         if(!diagram) return // this below function will use data as form from utils instead of voronio (above renders from voronoi data)
-        let setting = {showcorners: true, showedges: true, showsites: true, showNeighbors: true} //this will be replaced by a paramater
+        let setting = {showcorners: false, showedges: true, showsites: false, showNeighbors: true} //this will be replaced by a paramater
         let cammatix = { 
             position: new Vec2(0,0), //upper Left corner of the camera;
             zoom: 1, //scale of the map 0.1 means everything is 1/10 the scale and 10 means that everything is 10 times as big
@@ -166,8 +169,8 @@ var RandomMapRender = {
             ctx.stroke(); //do stroke so that we get fully filled shapes with no antialising
             if(flag)
             {
-                v = o.add(x.center);
-                ctx.fillStyle = 'Red';
+                v = o.add(x.center).mul(z);
+                ctx.fillStyle = 'black';
                 ctx.beginPath();
                 ctx.rect(v.x-2/3,v.y-2/3,2,2);
                 ctx.fill();
@@ -178,31 +181,32 @@ var RandomMapRender = {
         if(setting.showedges )
         {
             len = diagram.edges.length, arr = diagram.edges;
-            ctx.strokeStyle = "Black";
+            ctx.strokeStyle = "black";
+            ctx.beginPath();
             while(len--)
             {
                 x = arr[len].ends[0].position;
                 v = arr[len].ends[1].position;
                 if(!bounds.check(x) && !bounds.check(v)) continue; //only skip if both ends are not visible;
-                x = o.add(x);
-                v = o.add(v);
+                x = o.add(x).mul(z);
+                v = o.add(v).mul(z);
                 ctx.moveTo(x.x, x.y);
                 ctx.lineTo(v.x, v.y);
             }
             ctx.stroke();
         }
-        if(setting.showcorners)
+         if(setting.showcorners)
         {
             len = diagram.corners.length, arr = diagram.corners, x;
-            ctx.fillStyle = "blue"
+            ctx.fillStyle = "black"
             while(len--)
             {
-                v = o.add(arr[len].position);
                 ctx.beginPath();
+                v = o.add(arr[len].position).mul(z);
                 ctx.rect(v.x-2/3,v.y-2/3,2,2);
                 ctx.fill();
-            }  
-            ctx.fill();
+            }
+            
         }
         if(setting.showNeighbors)
         {
@@ -211,12 +215,12 @@ var RandomMapRender = {
             ctx.strokeStyle = "black";
             while(len--){
                 x = arr[len];
-                v1 = o.add(x.center);
+                v1 = o.add(x.center).mul(z);
                 x.neighbors.forEach(n=>
                 {
                     if(n.id == -1) return;
                     ctx.moveTo(v1.x,v1.y);
-                    v = o.add(n.center)
+                    v = o.add(n.center).mul(z);
                     ctx.lineTo(v.x,v.y);
                 })
             }
