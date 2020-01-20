@@ -48,7 +48,7 @@ class RandomMap
             "Perlin Weight": [0.0, 0.32, 1.0], //set this slightly above sea level so we get some islands randomly sprinkled
             "Center Weight": [0.0, 0.68, 1.0], //this and the above must equal 1.0 Done this way so you can add more methods as weights
             "Coast Clean Irrations": [1,5,20],
-            "Cell Percentage": [0.0001, 3, 15.0],
+            "Cell Percentage": [0.0001, 1.6, 3],
             "Min Distance": [0.00001, 5, 10],
             "CoastalRoughness": [0.0001, 1.0, 5.0],
             "Normalizations Cycles": [-1, 3, 5],
@@ -144,6 +144,7 @@ class RandomMap
         // all data is held into the class data pool and is passed between functions
         // at the end of each cycle a delay is called to allow for the canvas to render
         // this will create a animation which will help people see how the algorithm builds
+        console.log(this.funcStep);
         if(this[this.funcStep]() == false)
         {
             this.dataStack = {}; //reset data stack so we dont have collisions
@@ -167,7 +168,7 @@ class RandomMap
         let margin = 10; //some padding so we dont go to far
         let height = this.bounds.height() - margin*2;
         let width = this.bounds.width() - margin*2;
-        let sitenumber = Math.min(Math.max((width * height * this.props["Cell Percentage"][1]* 0.001),3), 100000);
+        let sitenumber = Math.max((width * height * this.props["Cell Percentage"][1]* 0.01),3);
         let irr = Math.min(sitenumber-this.graph.sites.length,100); //only do 100 at a time
         for(let i = 0; i < irr; i++)
         {
@@ -262,9 +263,36 @@ class RandomMap
         this.BuildCustomGraph()
         return this.dataStack.irr < this.props["LLOYD Irrations"][1] ; //basically dont over do relaxation to give user control over the Uniformity of cell regions
     }
-    PatelRelaxation() //from here are we are using types defined in Utls.js instead of Voronoi.js
+    PatelRelaxation() //from here out we are using types defined in Utls.js instead of Voronoi.js so we have more control of the graph data
     {
-        return false;
+        if(this.props["PATEL Irrations"][1] === 0 ) return false; //exit if the user wishes not to use Patel's algorithm
+        this.dataStack.irrations = this.dataStack.irrations ? this.dataStack.irrations+1 : 1; //set up our irration data
+        let iCorner = this.graph.corners.length, corners = this.graph.corners,
+        q,p1, cellneighbors = [], newpos = new Array(iCorner),
+        bounds = this.bounds;
+        //main idea of this algorithm as oulined in the paper is to average the corners based on the other corners of a given cell
+        // this will stretch out the edges and make them more defined and give us a cleaner look to our cells
+        //we will double irrate through the corners array so not to create an issue with the data. if we move them right away this could
+        //cause an issue where the data is skewed because of the new averages based on moved corners
+        while(iCorner--) //we do one irration 
+        {
+            q = corners[iCorner];
+            if(q.IsBoundary(bounds)) {newpos[iCorner] = q.position; continue;} //if cell is on the edge of the map we dont wanna relax it
+
+            p1 = new Vec2(0,0);
+            cellneighbors = q.touches; //touches is the cells that the corner is touching or is a vertex of this can be between 1 and (in rare case) and 4 (in more common cases)
+            if(cellneighbors.length <= 0){ newpos[iCorner] = q.position; console.log("Cell Neightbor not assigned"); continue;} //weird bug that came up in the old method rarely
+            let len = cellneighbors.length;
+            for(let j = 0;  j < len; j++)
+                p1 = p1.add(cellneighbors[j].center); //get the middle of each cell and add them all up
+            p1 = new Vec2(len,len).div(p1); //divide by the length of the cell neighbors onces they are all summed, (average)
+            newpos[iCorner] = p1;
+            
+        }
+        iCorner = this.graph.corners.len;
+        while(iCorner--) this.graph.corners[iCorner].position = newpos[iCorner];
+        //keep going till we reach the amount defined (keep in mind false moves on true keeps going)
+        return this.props["PATEL Irrations"][1] > this.dataStack.irrations; 
     }
     HeightGeneration()
     {

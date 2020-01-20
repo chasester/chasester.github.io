@@ -136,7 +136,7 @@ var RandomMapRender = {
         //step two do validation
         //validate that we have data to render
         if(!diagram) return // this below function will use data as form from utils instead of voronio (above renders from voronoi data)
-        let setting = {showcorners: false, showedges: true, showsites: false, showNeighbors: true} //this will be replaced by a paramater
+        let setting = {showcorners: false, showedges: false, showsites: false, showNeighbors: false} //this will be replaced by a paramater
         let cammatix = { 
             position: new Vec2(0,0), //upper Left corner of the camera;
             zoom: 1, //scale of the map 0.1 means everything is 1/10 the scale and 10 means that everything is 10 times as big
