@@ -347,7 +347,7 @@ class RandomMap
 
         //get our max number of nodes over all irrations
         this.dataStack.num = this.dataStack.num ? this.dataStack.num : this.graph.corners.length;
-        let max = 1000;
+        let max = 500;
         let i = this.dataStack.num, random = this.Seeds.Var, elevation, chance;
         const calculatefromhighpoints = (hps, point) => //little helper function set to const so we dont have to worry about defining it each time
         {
@@ -359,7 +359,6 @@ class RandomMap
                 h = hps[iHigh];
                 pos = h.position;
                 dist = p.dist(pos); //kinda hate that we dont have type casting for these reasons
-                console.log(dist);
                 leastdist = h.size.y > h.size.x ? h.size.y : h.size.x; //miniumdistance that we should even consider calculating (this is where this highpoint would give 0.0 < to the elevation)
                 if(dist < leastdist && random.randomRange(0,5) >= this.props["Coastal Roughness"][1]) // add in some random chance that we assign a lower elevation so we get more islands around our islands
                 {
@@ -384,7 +383,6 @@ class RandomMap
                     total += x+y;
                 }
             }
-            console.log(total,x,y,"total")
             return total;
         }
         //base setup of variables
@@ -470,7 +468,7 @@ if(rndContainor)
         {
             Map.GenerateMap(canvas);
         }
-}, 10);
+}, 150);
 else
     console.error("could not mount canvas to dom, this could be due to browser incompatiblity");
 
