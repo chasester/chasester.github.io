@@ -63,11 +63,16 @@ class Vec2
     }
     len() //vector length
     {
-        return Math.sqrt(this.sqlen);
+        return Math.sqrt(this.sqlen());
     }
     dist(v) //distance from v to this vector [shortest path]
     {
         return this.len(new Vec2(this.x - v.x, this.y- v.y))
+    }
+    normalize() 
+    {
+        let len = this.len();
+        return new Vec2(this.x/len, this.y/len);
     }
     equalTo(v)
     {
@@ -102,6 +107,7 @@ class Rect
     width = () => Math.abs(this.maxX - this.minX); //just in case some one is sill and defines these wrong
     height = () => Math.abs(this.maxY - this.minY);
     convertxxyy() {return {xl: this.minX, xr: this.maxX, yt: this.minY, yb: this.maxY};} //convertions to voronoi aabb
+    center = () => new Vec2((this.width()/2)+this.minX, (this.height()/2)+this.minY); //center is just dem length/2 + offset;
     check(v)//take in a positonal vector or object with and x,y key
     {
         return this.minX <= v.x && this.maxX >= v.x && this.minY <= v.y && this.maxY >= v.y; //simple aabb check
