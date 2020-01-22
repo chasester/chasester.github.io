@@ -22,6 +22,17 @@
 
 //represents one N gon shape (between 3-9 sided) which contains a list of corners and edges
 //this cell will hold the meta data for the biome this cell is configured to be.
+
+TerrainType = //basically an enum object because we dont have enums
+{
+    NONE: 0,
+    OCEAN: 1,
+    COAST: 2,
+    LAND: 3,
+    LAKE: 4,
+    MAX: 5
+}
+
 class Cell
 {
     constructor(position, index) //position is either an object {x,y} or vec2 and index is a unique id
@@ -32,6 +43,10 @@ class Cell
         this.neighbors = [] //this will be of type cell
         this.id = index; // a unique id to help identify this cel
         this.biome = 0;
+        this.terrainType = TerrainType.None;
+        this.elevation = -1;
+        this.moisture = -1;
+        this.tempature = -1;
     }
     RemoveNeighbors()
     {
@@ -90,6 +105,24 @@ class Cell
     isEqual(c)
     {
         return this.center.equalTo(c.center);
+    }
+    SetCornerAverage()
+    {
+        let elv=0, moist=0, temp=0, len = this.corners.length,c;
+        let terr = new Array(TerrainType.MAX).fill(0);
+        for(let i = 0; i < len; i++)
+        {
+            
+            c = this.corners[i];
+            elv += c.elevation;
+            moist += c.moisture;
+            temp += c.tempature;
+            terr[c.terrainType]++;
+        }
+        this.elevation = elv/len;
+        this.moisture = moist/len;
+        this.tempature = temp/len;
+        this.terraintype = terr.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
     }
 }
 
@@ -202,16 +235,6 @@ class Midpoint //unused but still track for future use
     }
 }
 
-TerrainType = //basically an enum object because we dont have enums
-{
-    NONE: 0,
-    OCEAN: 1,
-    COAST: 2,
-    LAND: 3,
-    LAKE: 4
-
-}
-
 class Corner
 {
     constructor(point, index, e) //point is type vec2, index is a unique id, e is of type edge which spawned this corner
@@ -220,7 +243,7 @@ class Corner
         this.moisture = 0.0;
         this.tempature = 0.0;
 
-        this.terrainType = TerrainType.None;
+        this.terrainType = TerrainType.NONE;
         this.id = index;
         this.position = point;
         this.edges = [];   //edges
@@ -272,7 +295,7 @@ class Corner
             cn = this.edges[i].GetCorners();
             for (let k = 0; k < 2; k++)
                 if (cn[k].isEqual(c)) return this.edges[i].id;
-        }
+        } 
         //else we didnt find one so return null
         return -1;
     }
@@ -292,7 +315,7 @@ class Corner
 
     HasTerrianValue()
     {
-        return this.terrainType != TerrainType.NONE;
+        return this.terrainType !== TerrainType.NONE;
     }
     isEqual(c)
     {
@@ -321,7 +344,9 @@ class Highpoint
     {
         this.position = new Vec2(x,y);
         this.size = new Vec2(sizex, sizey);
-        this.elevation = Math.min(Math.max(elev,0.0), 1.0); //clamping between 0 to 1
+        this.elevation = Math.min(Math.max(elev,0.0), 1); //clamping between 0 to 1, peak elevation
+        this.range = 1; //describes the range of elevation variation
+        this.occolation = 2.2; //describes the numerator in the sin(1/x) formula which helps produce foot hills and a variable rate;
         this.dispation = dispat;
     }
 }

@@ -230,8 +230,17 @@ var RandomMapRender = {
 
         },
         getFillStyle(c){//will determine cell color by biome and elevation data
-            let r = random.hash(c.id)*50+185;
-            return `rgb(${r},${r},${r})`
+            
+                let r = c.elevation < 0 ?  random.random()*50+185 : c.elevation*255;
+                return `rgb(${r},${r},${r})`
+            switch(c.terrainType){
+               /*  case TerrainType.None:
+                case TerrainType.Ocean:
+                    return "rgb(0,0,255)"
+                case TerrainType.LAND:
+                    return "rgb(0,255,0)" */
+
+            }
         }
     };
 //RandomMapRender.init();
