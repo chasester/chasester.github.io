@@ -270,6 +270,9 @@ class RandomMap
     }
     PatelRelaxation() //from here out we are using types defined in Utls.js instead of Voronoi.js so we have more control of the graph data
     {
+        //this.graph.corners.sort((x,y) => this.bounds.center().dist(x.position) - this.bounds.center().dist(y.position)); //sort from center
+        this.graph.corners.sort((x,y) => random.hash(x.id) - random.hash(y.id)); //sort from random hash basically garentees the same result every time;
+        return false; //need to come back and look at this. causing a render bug;
         if(this.props["PATEL Irrations"][1] === 0 ) return false; //exit if the user wishes not to use Patel's algorithm
         this.dataStack.irrations = this.dataStack.irrations ? this.dataStack.irrations+1 : 1; //set up our irration data
         let iCorner = this.graph.corners.length, corners = this.graph.corners,
