@@ -46,12 +46,12 @@ class RandomMap
 
             "Map Properties": [], //create a header
             "Water Height": [0.0001, 0.3, 1.0],
-            "Perlin Weight": [0.0, 0, 1.0], //set this slightly above sea level so we get some islands randomly sprinkled
-            "Center Weight": [0.0, 1.0, 1.0], //this and the above must equal 1.0 Done this way so you can add more methods as weights
+            "Perlin Weight": [0.0, 0.28, 1.0], //set this slightly above sea level so we get some islands randomly sprinkled
+            "Center Weight": [0.0, 0.72, 1.0], //this and the above must equal 1.0 Done this way so you can add more methods as weights
             "Coast Clean Irrations": [1,5,20],
-            "Cell Percentage": [0.0001, 0.16, 3],
+            "Cell Percentage": [0.0001, 1.6, 3],
             "Min Distance": [0.00001, 5, 10],
-            "Coastal Roughness": [0.0001, 1.0, 5.0],
+            "Coastal Roughness": [0.0001, 2, 5.0],
             "Normalizations Cycles": [-1, 3, 5],
             "Lake Moisture": [0.0, 0.8, 1.0],
             "Moisture Threshold": [0.000001, 0.01, 0.2],
@@ -62,11 +62,11 @@ class RandomMap
             "PATEL Irrations": [0, 4, 10],
 
             "Heigh Point Properties": [],
-            "Number of High Points": [6,20],
-            "X Range": [1000, 1000],
-            "Y Range": [1000, 1000],
-            "Elevation Range": [0.8, 0.4],
-            "Elevation Dropoff": [1.5, 1.5]
+            "Number of High Points": [10,10],
+            "X Range": [100, 200],
+            "Y Range": [100, 300],
+            "Elevation Range": [0.4, 0.9],
+            "Elevation Dropoff": [0.9, 1.9]
         }
 
         //this.init();
@@ -347,12 +347,12 @@ class RandomMap
 
         //get our max number of nodes over all irrations
         this.dataStack.num = this.dataStack.num ? this.dataStack.num : this.graph.corners.length;
-        let max = 500;
+        let max = 250;
         let i = this.dataStack.num, random = this.Seeds.Var, elevation, chance;
         const calculatefromhighpoints = (hps, point) => //little helper function set to const so we dont have to worry about defining it each time
         {
             let r, d, n, x=0, b, y=0, total = 0;
-            let index = -1, leastdist = Infinity, // set this to infinity so nothing can match it
+            let leastdist, // set this to infinity so nothing can match it
             dist, iHigh = hps.length, pos, p = new Vec2(point.x, point.y),h;
             while(iHigh--)
             {
@@ -378,9 +378,9 @@ class RandomMap
                     d = h.occolation;
                     
                     //set x and y to the new value assigned by this formula make sure we are still in the domain of the highpoint;
-                    if(h.size.x >= x) x = Math.abs(((8*r)/x) * Math.abs(Math.sin((d*1000)/x)) + (Math.pow(2,b)/x))*h.elevation*Math.abs(n.x); else x =0;
-                    if(h.size.y >= y) y = Math.abs(((8*r)/y) * Math.abs(Math.sin((d*1000)/y)) + (Math.pow(2,b)/y))*h.elevation*Math.abs(n.y); else y=0;
-                    total += x+y;
+                    if(h.size.x >= x) x = Math.min(Math.abs(((8*r)/x) * Math.abs(Math.sin((d*1000)/x)) + (Math.pow(2,b)/x))*h.elevation, 1.5)*Math.abs(n.x); else x =0;
+                    if(h.size.y >= y) y = Math.min(Math.abs(((8*r)/y) * Math.abs(Math.sin((d*1000)/y)) + (Math.pow(2,b)/y))*h.elevation, 1.5)*Math.abs(n.y); else y=0;
+                    total += (x+y)*h.elevation;
                 }
             }
             return total;

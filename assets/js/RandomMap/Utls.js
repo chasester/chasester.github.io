@@ -345,8 +345,8 @@ class Highpoint
         this.position = new Vec2(x,y);
         this.size = new Vec2(sizex, sizey);
         this.elevation = Math.min(Math.max(elev,0.0), 1); //clamping between 0 to 1, peak elevation
-        this.range = 1; //describes the range of elevation variation
-        this.occolation = 2.2; //describes the numerator in the sin(1/x) formula which helps produce foot hills and a variable rate;
+        this.range = 2; //describes the range of elevation variation
+        this.occolation = 10; //describes the numerator in the sin(1/x) formula which helps produce foot hills and a variable rate;
         this.dispation = dispat;
     }
 }

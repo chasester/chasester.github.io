@@ -231,7 +231,7 @@ var RandomMapRender = {
         },
         getFillStyle(c){//will determine cell color by biome and elevation data
             
-                let r = c.elevation < 0 ?  random.random()*50+185 : c.elevation*255;
+                let r = c.elevation < 0 ?  random.hash(c.id)*50+185 : c.elevation > 0.35 ? c.elevation*170 : 0;
                 return `rgb(${r},${r},${r})`
             switch(c.terrainType){
                /*  case TerrainType.None:
