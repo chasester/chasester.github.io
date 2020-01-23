@@ -67,7 +67,7 @@ class Vec2
     }
     dist(v) //distance from v to this vector [shortest path]
     {
-        return this.len(new Vec2(this.x - v.x, this.y- v.y))
+        return (new Vec2(this.x - v.x, this.y- v.y)).len();
     }
     normalize() 
     {
