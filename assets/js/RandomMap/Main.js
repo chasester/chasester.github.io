@@ -41,7 +41,7 @@ class RandomMap
 
             "Seed Properties": [], //create a header
             "Map Seed":     [-99999, 0, 99999],
-            "Variant":  [-99999, Math.random()*9999, 99999],
+            "Variant":  [-99999, Math.floor(Math.random()*9999), 99999],
             "Evolution Seed": [-99999, 0, 99999],
 
             "Map Properties": [], //create a header
@@ -51,7 +51,7 @@ class RandomMap
             "Coast Clean Irrations": [1,5,20],
             "Cell Percentage": [0.0001, 1.6, 3],
             "Min Distance": [0.00001, 5, 10],
-            "Coastal Roughness": [0.0001, 2, 5.0],
+            "Coastal Roughness": [0, 1.5, 5.0],
             "Normalizations Cycles": [-1, 3, 5],
             "Lake Moisture": [0.0, 0.8, 1.0],
             "Moisture Threshold": [0.000001, 0.01, 0.2],
@@ -65,7 +65,7 @@ class RandomMap
             "Number of High Points": [10,10],
             "X Range": [100, 200],
             "Y Range": [100, 300],
-            "Elevation Range": [0.4, 0.9],
+            "Elevation Range": [0.7, 0.9],
             "Elevation Dropoff": [0.9, 1.9]
         }
 
@@ -163,6 +163,7 @@ class RandomMap
         this.Seeds.Map = new Random(this.props["Map Seed"][1]);
         this.Seeds.Var = new Random(this.props["Variant"][1]);
         this.Seeds.Evol = new Random(this.props["Evolution Seed"][1]);
+        console.log(`Using Seeds:\n\tMap:${this.Seeds.Map.s}\n\tVarient:${this.Seeds.Var.s}\n\t${this.Seeds.Evol.s}` ) 
         return false;
     }
     GenerateSites()
@@ -351,7 +352,14 @@ class RandomMap
         let i = this.dataStack.num, random = this.Seeds.Var, elevation, chance;
         const calculatefromhighpoints = (hps, point) => //little helper function set to const so we dont have to worry about defining it each time
         {
-            let r, d, n, x=0, b, y=0, total = 0;
+            //This is where we build our gray scale of hieght elevation, where any thing below waterhieht is concidered (below sea level)(darker colors) 
+            //and anything above sea level is land(keep in mind) that we assign below sea level as lake,but that doesnt gaurentee it being lake as we dont
+            //assign actual lake tiles till after watersheding, This is just a way for the next function to gather all touching ocean tiles and add them to
+            //ocean if they are not land locked.
+
+            //The base algorithm is basically a occlitory sin wave (lim |dist(h.pos -point)| -> 0 = h.elevation) but the inverse is a more
+            // long occilatory graph which makes some fun math that can basically can randomly create islands even at far away (but these islands are or 2 tiles) and very random
+            let r, d, n, CR, x=0, b, y=0, total = 0;
             let leastdist, // set this to infinity so nothing can match it
             dist, iHigh = hps.length, pos, p = new Vec2(point.x, point.y),h;
             while(iHigh--)
@@ -360,7 +368,7 @@ class RandomMap
                 pos = h.position;
                 dist = p.dist(pos); //kinda hate that we dont have type casting for these reasons
                 leastdist = h.size.y > h.size.x ? h.size.y : h.size.x; //miniumdistance that we should even consider calculating (this is where this highpoint would give 0.0 < to the elevation)
-                if(dist < leastdist && random.randomRange(0,5) >= this.props["Coastal Roughness"][1]) // add in some random chance that we assign a lower elevation so we get more islands around our islands
+                if(dist < leastdist)
                 {
                     // here we are gonna deviate from the original code and base our stuff on all highpoints rather than one this should give us better results
                     /*f\left(x\right)=\left|\frac{8r}{x}\left|\sin\left(\frac{d\cdot1000}{x}\right)\right|\ +\frac{2^{b}}{\left(x\right)}\right|*/
@@ -369,18 +377,19 @@ class RandomMap
                     //formula in which we can use an range offset and make x the dist between the point and the hp + random.range which will give us a controled random
 
                     //calculate the x dist and y dist seperately as each has a different data set
-                    x = Math.max(Math.abs(p.x-pos.x) - random.randomRange(0,5), 0.001); //this function is not defined at 0 so we dont wanna get NaN, add some random offset to give us some random ocollation
-                    y = Math.max(Math.abs(p.y-pos.y) - random.randomRange(0,5), 0.001);
+                    x = Math.max(Math.abs(p.x-pos.x - random.randomRange(-5,5)), 0.001); //this function is not defined at 0 so we dont wanna get NaN, add some random offset to give us some random ocollation
+                    y = Math.max(Math.abs(p.y-pos.y - random.randomRange(-5,5)), 0.001);
                     
                     n = new Vec2(x,y).normalize();
                     b = h.dispation;
                     r = h.range;
                     d = h.occolation;
+                    CR = 1/(1+this.props["Coastal Roughness"][1]) //add some randomness here to make it more delevation
                     
                     //set x and y to the new value assigned by this formula make sure we are still in the domain of the highpoint;
-                    if(h.size.x >= x) x = Math.min(Math.abs(((8*r)/x) * Math.abs(Math.sin((d*1000)/x)) + (Math.pow(2,b)/x))*h.elevation, 1.5)*Math.abs(n.x); else x =0;
-                    if(h.size.y >= y) y = Math.min(Math.abs(((8*r)/y) * Math.abs(Math.sin((d*1000)/y)) + (Math.pow(2,b)/y))*h.elevation, 1.5)*Math.abs(n.y); else y=0;
-                    total += (x+y)*h.elevation;
+                    if(h.size.x >= x) x = Math.min(Math.abs(((8*r)/x) * Math.abs(Math.sin((d*1000)/x)) + (Math.pow(2,b)/x))*h.elevation, h.elevation*Math.abs(n.x))*CR; else x =0;
+                    if(h.size.y >= y) y = Math.min(Math.abs(((8*r)/y) * Math.abs(Math.sin((d*1000)/y)) + (Math.pow(2,b)/y))*h.elevation, h.elevation*Math.abs(n.y))*CR; else y=0;
+                    total += (x+y);
                 }
             }
             return total;
@@ -434,8 +443,16 @@ class RandomMap
         return this.dataStack.num >= 0;
     }
     CoastalCleanup()
-    {
-       return false;
+    {   
+        //we need to now find our map edge corners (conviently placed in the oceans terrain) then cycle through there neighbors till we get 
+        //to corners marked as land. We will change each of these corners from lake to ocean and move them from the Lake list to the ocean list.
+        //this will be similar to a b* algorithm were we will follow a branch til we have reach a dead end then we will go to the next branch
+        //once weve come in from every corner edge of the map (that we marked as ocean in the preivous function) we know we have hit every possible
+        //section of the map and we know that all the land is surrounded by ocean.
+
+
+
+        return false;
     }
     TerrianNormalization()
     {
