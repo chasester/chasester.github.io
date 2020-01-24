@@ -6,9 +6,9 @@ class Random
         this.s = seed == 0 ? 1 : seed; // 0 causes a weird bug
         this.t = 1;
     }
-    hash(str) //this is a very lose hash shouldnt be used for anything serious. Mainly used for controled random colorization
+    hash(str, key=100) //this is a very lose hash shouldnt be used for anything serious. Mainly used for controled random colorization
     {
-        let t = 100;
+        let t = key;
         str = 36969 * (str & 65535) + (str >> 16);
         t = 18000 * (t & 65535) + (t >> 16);
         return Math.abs((((str << 16) + t) % 100000)*0.00001).toFixed(4);
