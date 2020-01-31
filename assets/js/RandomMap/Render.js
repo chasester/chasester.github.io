@@ -198,9 +198,11 @@ var RandomMapRender = {
          if(setting.showcorners)
         {
             len = diagram.corners.length, arr = diagram.corners, x;
-            ctx.fillStyle = "black"
+            let c;
             while(len--)
             {
+                c = arr[len];
+                ctx.fillStyle = c.terrain == TerrainType.LAND ? "green" : TerrainType.OCEAN  == c.terrain ? "blue" : TerrainType.COAST == c.terrain ? "yellow" : "black";
                 ctx.beginPath();
                 v = o.add(arr[len].position).mul(z);
                 ctx.rect(v.x-2/3,v.y-2/3,2,2);
@@ -230,16 +232,25 @@ var RandomMapRender = {
 
         },
         getFillStyle(c){//will determine cell color by biome and elevation data
-            
-                let r = c.elevation < 0 || isNaN(c.elevation) ?  random.hash(Math.floor(c.center.x/5)*Math.floor(c.center.y/5))*50+185 : c.elevation > 0.35 ? c.elevation*170 : c.elevation*100;
-                return `rgb(${r},${r},${r})`
+            let r,d;
             switch(c.terrainType){
-               /*  case TerrainType.None:
-                case TerrainType.Ocean:
-                    return "rgb(0,0,255)"
+                case TerrainType.NONE:
+                    r = c.elevation < 0 || isNaN(c.elevation) ?  random.hash(Math.floor(c.center.x/5)*Math.floor(c.center.y/5))*50+85 : c.elevation > 0.35 ? c.elevation*170 : c.elevation*100;
+                    return `rgb(${r},${r},${r})`
                 case TerrainType.LAND:
-                    return "rgb(0,255,0)" */
-
+                    r = c.elevation;
+                    d = {r: 147, g: 230, b: 151}
+                    return `rgb(${d.r*r},${d.g*r},${d.b*r})`
+                case TerrainType.OCEAN:
+                    r = (c.elevation*1.3)+0.3;
+                    d = {r: 77, g: 89, b: 214}
+                    return `rgb(${d.r*r},${d.g*r},${d.b*r})`
+                case TerrainType.COAST:
+                    r = Math.min((c.elevation*0.25)+0.9, 1);
+                    d = {r: 255, g: 226, b: 168}
+                    return `rgb(${d.r*r},${d.g*r},${d.b*r})`
+                default:
+                    return "rgb(0,0,0)";
             }
         }
     };
