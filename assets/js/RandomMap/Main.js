@@ -500,7 +500,7 @@ class RandomMap
                 while(nlen--) if(neighbors[nlen].terrain == TerrainType.LAKE) chance++; */
                 // basically if you score a 0.499 or lower then you will not become an ocean corner, else you become ocean
                 //added elevation to help islands with high mountains not become overran irrationally
-                if(Math.round(Math.max(this.Seeds.Var.randomRange(0,Math.pow(2,chance)-q.elevation-0.3),0.0))){newcoast.push(q); continue;} //add the items that dont get added to coast here.
+                if(!Math.round(Math.max(this.Seeds.Var.randomRange(0,Math.pow(2,chance)-q.elevation*0.5),0.0))){newcoast.push(q); continue;} //add the items that dont get added to coast here.
                 q.terrain = TerrainType.OCEAN;
                 que.push(q);
                 this.graph.OceanCorners.push(q);
@@ -521,7 +521,12 @@ class RandomMap
     }
     LandGathering()
     {
-       
+        this.dataStack.i = this.dataStack.i ? this.dataStack.i : 0;
+        let i = this.dataStack.i;
+
+        for(let len = this.graph.cells.length, max = 500; i < len && max--; i++)
+            this.graph.cells[i].SetTerrain();
+        this.dataStack.i = i;
     }
     TerrianNormalization()
     {
