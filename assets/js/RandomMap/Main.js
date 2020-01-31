@@ -4,16 +4,17 @@
 
 var STEP_FUNC = //string function types which allow us to to do dynamic step calling
 {
-    "Init": "GenerateSites", //init only runs on the first pass
-    "GenerateSites": "LloydRelaxation",
-    "LloydRelaxation": "PatelRelaxation",
-    "PatelRelaxation": "HeightGeneration",
-    "HeightGeneration": "LandBuilding",
-    "LandBuilding": "CoastalCleanup",
-    "CoastalCleanup": "TerrianNormalization",
+    "Init":                 "GenerateSites", //init only runs on the first pass
+    "GenerateSites":        "LloydRelaxation",
+    "LloydRelaxation":      "PatelRelaxation",
+    "PatelRelaxation":      "HeightGeneration",
+    "HeightGeneration":     "LandBuilding",
+    "LandBuilding":         "CoastalCleanup",
+    "CoastalCleanup":       "LandGathering",
+    "LandGathering":        "TerrianNormalization",
     "TerrianNormalization": "TempatureRoughCover",
-    "TempatureRoughCover": "WaterSheding",
-    "WaterSheding": "GenerateSites"   
+    "TempatureRoughCover":  "WaterSheding",
+    "WaterSheding":         "GenerateSites"
 }
 
 class RandomMap
@@ -45,10 +46,10 @@ class RandomMap
             "Evolution Seed": [-99999, 0, 99999],
 
             "Map Properties": [], //create a header
-            "Water Height": [0.0001, 0.3, 1.0],
+            "Water Height": [0.0001, 0.35, 1.0],
             "Perlin Weight": [0.0, 0.28, 1.0], //set this slightly above sea level so we get some islands randomly sprinkled
             "Center Weight": [0.0, 0.72, 1.0], //this and the above must equal 1.0 Done this way so you can add more methods as weights
-            "Coast Clean Irrations": [1,5,20],
+            "Coast Clean Irrations": [1,2,20],
             "Cell Percentage": [0.0001, 1.6, 3],
             "Min Distance": [0.00001, 5, 10],
             "Coastal Roughness": [0, 1.5, 5.0],
@@ -306,7 +307,7 @@ class RandomMap
     {
         //here lets start defining things on the stack that we want saved. We will save these to the graph data so they stay around
         let random = this.Seeds.Var;
-        this.graph = //we add the meta data to the graph here we mayneed to move this
+        this.graph = //we add the meta data to the graph here we may need to move this
         {
             ...this.graph,
             LandCorners: [],
@@ -345,8 +346,8 @@ class RandomMap
     }
     LandBuilding()
     {
-        let CenterWeight = this.props["Center Weight"][1], PerlinWeight = this.props["Perlin Weight"][1], WaterHeight = this.props["Water Height"];
-        let t = Math.max(CenterWeight + PerlinWeight, 0.00000001) //so we dont div by 0;
+        let CenterWeight = this.props["Center Weight"][1], PerlinWeight = this.props["Perlin Weight"][1], WaterHeight = this.props["Water Height"][1];
+        let t = Math.max(CenterWeight + PerlinWeight, 0.00000001) //so we dont div by 0; should always = 1 but there are no constraints to the settings
         CenterWeight /= t, PerlinWeight /= t; //set up weights
 
         //get our max number of nodes over all irrations
@@ -414,7 +415,6 @@ class RandomMap
                 q.touches.forEach(x => x.SetCornerAverage()); //go to each corner this guy touches and recalc the data
                 continue;
             }
-
             elevation = (random.random() * PerlinWeight) + (calculatefromhighpoints(this.graph.highpoints, q.position) * CenterWeight);
 
             if(elevation < WaterHeight)
@@ -423,9 +423,9 @@ class RandomMap
                 chance = 0;
                 for (let j = 0; j < neighbors.Count; j++)
                 {//basically set up a random chance based on surounding Terrain
-                    if (neighbors[j].terrian == TerrianType.LAND) chance += 3; 
-                    else if (neighbors[j].terrian == TerrianType.LAKE) chance--; 
-                    else if (neighbors[j].terrian == TerrianType.OCEAN) chance++; //add a chance that land will clump a lil
+                    if (neighbors[j].terrain == TerrainType.LAND) chance += 3; 
+                    else if (neighbors[j].terrain == TerrainType.LAKE) chance--; 
+                    else if (neighbors[j].terrain == TerrainType.OCEAN) chance++; //add a chance that land will clump a lil
                     else ;//unprocessed do nothing
                 }
                 //this will be water
@@ -439,9 +439,9 @@ class RandomMap
             }
             q.SetTerrianProperties(elevation, 0.0, TerrainType.LAND);
             this.graph.LandCorners.push(q);
-            q.touches.forEach(x => x.SetCornerAverage());
+            q.touches.forEach(x => {x.SetCornerAverage();});
+            if(elevation > 0.9) this.graph.HighCorners.push(q);
         }
-
         this.dataStack.num = i;
         return this.dataStack.num >= 0;
     }
@@ -452,10 +452,76 @@ class RandomMap
         //this will be similar to a b* algorithm were we will follow a branch til we have reach a dead end then we will go to the next branch
         //once weve come in from every corner edge of the map (that we marked as ocean in the preivous function) we know we have hit every possible
         //section of the map and we know that all the land is surrounded by ocean.
+        
+        let que = this.dataStack.que ? this.dataStack.que : this.graph.OceanCorners;
+        this.dataStack.cleanirr = this.dataStack.cleanirr ? this.dataStack.cleanirr : 0; //number of times the clean function has been fired (see Coast Clean Irrations setting)
+        let max = 500; //max irrations in one frame cycle
+        let neighbors; //of corners
+        let q, s; //of corner
+        let nlen;
+        
+        while(que.length && max--)
+        {
+            q = que.shift(); //get the first item;
+            neighbors = q.neighbors;
+            nlen = neighbors.length;
+            while(nlen--)
+            {
+                s = neighbors[nlen];
+                if(s.terrain == TerrainType.OCEAN || s.terrain == TerrainType.COAST) continue;
+                if(s.terrain == TerrainType.LAND) { this.graph.CoastCorners.push(s); s.terrain = TerrainType.COAST; continue; }
+                //else Type Lake
+                s.terrain = TerrainType.OCEAN;
 
+                que.push(s); //we add this to the que so that we can check its neighbors
+                //due to this being a very bad way to do this we will handle the clean on exit
+                //this.graph.LakeCorners.splice(s); //we want to make sure to keep the lake list clean so it only contains the lake elements. This item is an ocean element os we dotn want it here
+                this.graph.OceanCorners.push(s);
+            }
+            q.touches.forEach(x => x.SetTerrain()); //go in and tell all our cells what we are now and get our averages, this will allow better rendering;
+        }
+        
+        if(que.length < 1 && this.dataStack.cleanirr < this.props["Coast Clean Irrations"][1])
+        {
+            //This is what we are going to do to make our islands a bit cleaner so that we have less of a chance of getting straggler islands along the edges of the islands,
+            //if (once the ocean is populated) there is an area of land lock water(ie land below the sealevel, next to a coast, there is a chance that errotion could happen 
+            //and destroy this island ingulfing it with water and freeing the trapped "lake")
+            //So we will search for these trapped potential bodies of water and remove the land to free them, on a few random case variables
+            this.dataStack.cleanirr++;
+            let newcoast = []; //of corners;
+            let len = this.graph.CoastCorners.length, chance;
+            while(len--)
+            {
+                chance = 0;
+                q = this.graph.CoastCorners[len];
+                chance = q.neighbors.filter(x => x.terrain == TerrainType.LAKE).length;
+                /* neighbors = q.neighbors;
+                nlen = neighbors.length;
+                while(nlen--) if(neighbors[nlen].terrain == TerrainType.LAKE) chance++; */
+                // basically if you score a 0.499 or lower then you will not become an ocean corner, else you become ocean
+                //added elevation to help islands with high mountains not become overran irrationally
+                if(Math.round(Math.max(this.Seeds.Var.randomRange(0,Math.pow(2,chance)-q.elevation-0.3),0.0))){newcoast.push(q); continue;} //add the items that dont get added to coast here.
+                q.terrain = TerrainType.OCEAN;
+                que.push(q);
+                this.graph.OceanCorners.push(q);
+            }
+            this.graph.CoastCorners = newcoast;
+        }
 
-
-        return false;
+        if(que.length < 1) //we are done now
+        {
+            this.graph.LakeCorners = this.graph.LakeCorners.filter(x=> x.terrain != TerrainType.OCEAN); //make sure our land doesnt have any oceans :P
+            this.graph.LakeCorners.forEach(x => x.terrain = TerrainType.LAND);
+            this.graph.LandCorners = this.graph.LakeCorners.concat(this.graph.LandCorners);
+            this.graph.LakeCorners = []; //remove all lake corners we will assign these during water shedding;
+            return false;
+        }//else
+        this.dataStack.que = que;
+        return true;
+    }
+    LandGathering()
+    {
+       
     }
     TerrianNormalization()
     {
