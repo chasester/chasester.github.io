@@ -43,7 +43,7 @@ class Cell
         this.neighbors = [] //this will be of type cell
         this.id = index; // a unique id to help identify this cel
         this.biome = 0;
-        this.terrainType = TerrainType.None;
+        this.terrainType = TerrainType.NONE;
         this.elevation = -1;
         this.moisture = -1;
         this.tempature = -1;
@@ -108,8 +108,8 @@ class Cell
     }
     SetCornerAverage()
     {
-        let elv=0, moist=0, temp=0, len = this.corners.length,c;
-        let terr = new Array(TerrainType.MAX).fill(0);
+        let elv=0, moist=0, temp=0,c;
+        let len = this.corners.length;
         for(let i = 0; i < len; i++)
         {
             
@@ -117,12 +117,19 @@ class Cell
             elv += c.elevation;
             moist += c.moisture;
             temp += c.tempature;
-            terr[c.terrainType]++;
         }
         this.elevation = elv/len;
         this.moisture = moist/len;
         this.tempature = temp/len;
-        this.terraintype = terr.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
+    }
+    SetTerrain()
+    {
+        let terr = new Array(TerrainType.MAX).fill(0);
+        let len = this.corners.length;
+        for(let i = 0; i < len; i++ )terr[this.corners[i].terrain]++;
+        this.terrainType = terr.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
+        if(this.terrainType == TerrainType.LAND && terr[TerrainType.COAST] > 0) this.terrainType = TerrainType.COAST;
+        //console.log(this.terrainType)
     }
 }
 
@@ -243,7 +250,7 @@ class Corner
         this.moisture = 0.0;
         this.tempature = 0.0;
 
-        this.terrainType = TerrainType.NONE;
+        this.terrain = TerrainType.NONE;
         this.id = index;
         this.position = point;
         this.edges = [];   //edges
@@ -284,7 +291,7 @@ class Corner
     {
         this.elevation = elv;
         this.moisture = moist;
-        this.terrainType = type;
+        this.terrain = type;
     }
 
     GetEdgeIdFromCorners(c) //this corner and c define only one edge this edge id is what is returned
@@ -315,7 +322,7 @@ class Corner
 
     HasTerrianValue()
     {
-        return this.terrainType !== TerrainType.NONE;
+        return this.terrain !== TerrainType.NONE;
     }
     isEqual(c)
     {
