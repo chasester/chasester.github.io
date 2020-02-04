@@ -561,8 +561,7 @@ if(rndContainor)
             Map.GenerateMap(canvas);
         }
         else{
-            camera.deactivate();
-            camera = null;
+            if(camera){ camera.deactivate(); camera = null; } //remove listeners
         }
 }, 150);
 else
