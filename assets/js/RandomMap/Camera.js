@@ -67,11 +67,11 @@ class Camera //maybe remove the key events and move to new class if we have a mo
         switch(e.keyCode)
         {
             //zoom
-            case keys.Q:
+            case keys.E:
                 this.cammatix.zoom -= this.cammatix.zoom > 1 ? !e.shiftKey  ? 0.1 : 1  : 0;
                 this.cammatix.zoom = Math.max(this.cammatix.zoom, 1);
                 break;
-            case keys.E:
+            case keys.Q:
                 this.cammatix.zoom += this.cammatix.zoom < 20 ? !e.shiftKey  ? 0.1 : 1 : 0.5;
                 this.cammatix.zoom = Math.min(this.cammatix.zoom, 20);
                 console.log(this.cammatix.zoom);
@@ -79,16 +79,16 @@ class Camera //maybe remove the key events and move to new class if we have a mo
 
             //movement
             case keys.W:
-                this.cammatix.position.y -= !e.shiftKey  ? 1/this.cammatix.zoom : 20/this.cammatix.zoom;
+                this.cammatix.position.y -= !e.shiftKey  ? 1 : 20;
                 break;
             case keys.A:
-                this.cammatix.position.x -= !e.shiftKey  ?1/this.cammatix.zoom : 20/this.cammatix.zoom;
+                this.cammatix.position.x -= !e.shiftKey  ?1 : 20;
                 break;
             case keys.S:
-                this.cammatix.position.y += !e.shiftKey  ? 1/this.cammatix.zoom : 20/this.cammatix.zoom;
+                this.cammatix.position.y += !e.shiftKey  ? 1 : 20;
                 break;
             case keys.D:
-                this.cammatix.position.x += !e.shiftKey  ? 1/this.cammatix.zoom : 20/this.cammatix.zoom;
+                this.cammatix.position.x += !e.shiftKey  ? 1 : 20;
                 break;
         }
 
