@@ -152,7 +152,7 @@ class RandomMap
             this.funcStep = STEP_FUNC[this.funcStep]; //stack the next step into the slot for next cycle
         }
 
-        if(this.shouldRender) RandomMapRender.render(this.graph); //only render if we should render so we dont get weird rerender glitch
+        if(this.shouldRender) RandomMapRender.render(this.graph, camera); //only render if we should render so we dont get weird rerender glitch
     }
     //function in order of Step Functions
     Init()
@@ -549,7 +549,7 @@ class RandomMap
 rndContainor = document.querySelector("article#RandomMap")
 var Map = new RandomMap(); //first instance of class built on load of file;
 
-var canvas;
+var canvas, camera;
 canvas =  rndContainor.querySelector("canvas");
 //setTimeout(handleResize, 100);
 
@@ -557,7 +557,12 @@ if(rndContainor)
     setInterval(function () {
         if(rndContainor.className === "active" && canvas)
         {
+            if(!camera) camera = new Camera(canvas);
             Map.GenerateMap(canvas);
+        }
+        else{
+            camera.deactivate();
+            camera = null;
         }
 }, 150);
 else
