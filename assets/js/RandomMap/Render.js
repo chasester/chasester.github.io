@@ -67,7 +67,7 @@ var RandomMapRender = {
         e.innerHTML = '('+this.diagram.cells.length+' Voronoi cells computed from '+this.diagram.cells.length+' Voronoi sites in '+this.diagram.execTime+' ms &ndash; rendering <i>not</i> included)';
         },
 
-    render: function(diagram) {
+    render: function(diagram, camera) {
         //old render using voronoi.js class functions
         {/* var ctx = this.canvas.getContext('2d');
         // background
@@ -137,11 +137,11 @@ var RandomMapRender = {
         //validate that we have data to render
         if(!diagram) return // this below function will use data as form from utils instead of voronio (above renders from voronoi data)
         let setting = {showcorners: false, showedges: false, showsites: false, showNeighbors: false} //this will be replaced by a paramater
-        let cammatix = { 
+        let cammatix = camera.cammatix;/*  {
             position: new Vec2(0,0), //upper Left corner of the camera;
             zoom: 1, //scale of the map 0.1 means everything is 1/10 the scale and 10 means that everything is 10 times as big
             //rotation: {x1,x2,x3,  y1,y2,y3,  z1,z2,z3} //maybe add this
-        }
+        } */
         //bounds is our basic box which the camera is viewing currently, dont send things to the contex render if they arnt visible
         let bounds = new Rect(cammatix.position.x, cammatix.position.y,(cammatix.position.x + canvas.width)/cammatix.zoom, (cammatix.position.y + canvas.height)/cammatix.zoom);
 
