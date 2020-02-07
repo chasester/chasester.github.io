@@ -54,6 +54,7 @@ class RandomMap
             "Min Distance": [0.00001, 5, 10],
             "Coastal Roughness": [0, 1.5, 5.0],
             "Normalizations Cycles": [-1, 3, 5],
+            "Normalization Depth": [1, 3, 5],
             "Lake Moisture": [0.0, 0.8, 1.0],
             "Moisture Threshold": [0.000001, 0.01, 0.2],
             "Rain Fall Average": [0.0, 4.0, 10.0],
@@ -270,9 +271,10 @@ class RandomMap
         return this.dataStack.irr < this.props["LLOYD Irrations"][1] ; //basically dont over do relaxation to give user control over the Uniformity of cell regions
     }
     PatelRelaxation() //from here out we are using types defined in Utls.js instead of Voronoi.js so we have more control of the graph data
-    {
-        //this.graph.corners.sort((x,y) => this.bounds.center().dist(x.position) - this.bounds.center().dist(y.position)); //sort from center
-        this.graph.corners.sort((x,y) => random.hash(x.position.x, x.position.y) - random.hash(y.position.x, y.position.y)); //sort from random hash basically garentees the same result every time;
+    {   
+        let center = this.bounds.center();
+        this.graph.corners.sort((x,y) => -center.dist(x.position) + center.dist(y.position)); //sort from center
+        //this.graph.corners.sort((x,y) => random.hash(x.position.x, x.position.y) - random.hash(y.position.x, y.position.y)); //sort from random hash basically garentees the same result every time;
         return false; //need to come back and look at this. causing a render bug;
         if(this.props["PATEL Irrations"][1] === 0 ) return false; //exit if the user wishes not to use Patel's algorithm
         this.dataStack.irrations = this.dataStack.irrations ? this.dataStack.irrations+1 : 1; //set up our irration data
@@ -527,14 +529,59 @@ class RandomMap
         for(let len = this.graph.cells.length, max = 500; i < len && max--; i++)
             this.graph.cells[i].SetTerrain();
         this.dataStack.i = i;
+        return i < this.graph.cells.length;
     }
-    TerrianNormalization()
-    {
-       return false;
+    TerrianNormalization() 
+    {//Now we want to normalize our gradial terrian so we get more consistent features, We ill be randomly unnormalizing vectors to add some hilly areas
+        this.dataStack.iNormal = this.dataStack.iNormal ? this.dataStack.iNormal : this.props["Normalizations Cycles"][1];
+        this.dataStack.que = this.dataStack.que ? this.dataStack.que : this.graph.cells;
+        this.dataStack.i = this.dataStack.i ? this.dataStack.i : 0;
+        this.dataStack.newelv = this.dataStack.newelv ? this.dataStack.newelv : {};
+        if(this.dataStack.iNormal < 1) return false; //take care of the case that normalization is not requested
+        //main delcarations
+        let c, cr, eavg, etotal, que = this.dataStack.que, stack= {}, newelv = this.dataStack.newelv, 
+            i = this.dataStack.i, max = 2000, len = que.length, n = this.props["Normalization Depth"][1];
+
+        //helper functions
+        const gatherneighbors = (c) => c.neighbors.forEach(x => {if(x.id > -1) stack[String(x.id)] = x}); //this function will take all the neighbors and add them to our stack list by id
+        const getdepthlevels = (c,n) => 
+        {
+            if(n < 1) return;
+            gatherneighbors(c);
+            c.neighbors.forEach(x => getdepthlevels(x, n-1));
+        }
+
+        for(; max-- && i < len; i++)
+        {
+            if(this.Seeds.Evol.random() < 0.2) continue;
+            c = que[i];
+            stack = {};
+            eavg = 0;
+            getdepthlevels(c, n); //this fills up stack with all neighbors N tiles away
+           // gatherneighbors(c);
+            cr = Object.keys(stack);
+            
+            cr.forEach(x => eavg += stack[x].elevation); //sum all cells elevation up
+            eavg = eavg/cr.length;
+            if(isNaN(eavg)) {console.log("hello"); continue;}
+            //keep in mind we set this to an object so we dont influence the average untill we know we have finished all calculations for this irration
+            newelv[String(c.id)] = (eavg)*0.3 + c.elevation*0.7; //make the new average have 30% influence to the old average (ie lerp with an A=0.3); so we dont get drastic changes
+        }
+        if(i >= len)
+        { //we have finished a cycle so lets reset everything
+            i = 0;
+            this.dataStack.iNormal -= 1;
+            let el;
+            this.graph.cells.forEach( x=> { el = newelv[String(x.id)]; x.elevation = isNaN(el) || el == undefined || el < 0  || el == Infinity ? x.elevation : el})
+            //Object.keys(newelv).forEach(x=> this.graph.cells[parseInt(x)].elevation = newelv[x]);
+            newelv = {};
+        }
+        this.dataStack.i = i;
+        return this.dataStack.iNormal > 0; //check to see if we need to keep normalizing the terrain or we have done enough irrations
     }
     TempatureRoughCover() //starting here we will use evolutionary seed
     {
-       return false;
+        return false;
     }
     WaterSheding()
     {
