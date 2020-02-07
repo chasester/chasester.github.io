@@ -553,7 +553,7 @@ class RandomMap
 
         for(; max-- && i < len; i++)
         {
-            if(this.Seeds.Evol.random() < 0.2) continue;
+            if(this.Seeds.Evol.random() < 0.5) continue;
             c = que[i];
             stack = {};
             eavg = 0;
