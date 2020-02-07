@@ -74,7 +74,6 @@ class Camera //maybe remove the key events and move to new class if we have a mo
             case keys.Q:
                 this.cammatix.zoom += this.cammatix.zoom < 20 ? !e.shiftKey  ? 0.1 : 1 : 0.5;
                 this.cammatix.zoom = Math.min(this.cammatix.zoom, 20);
-                console.log(this.cammatix.zoom);
                 break;
 
             //movement

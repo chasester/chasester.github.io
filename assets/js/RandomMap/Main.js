@@ -585,8 +585,8 @@ class RandomMap
     }
     WaterSheding()
     {
-        this.shouldRender = false;
-        let ctx = this.canvas.getContext('2d');
+        //this.shouldRender = false;
+        //let ctx = this.canvas.getContext('2d');
         return true;
     }
 }
