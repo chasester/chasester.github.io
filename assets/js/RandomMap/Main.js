@@ -599,7 +599,7 @@ var Map = new RandomMap(); //first instance of class built on load of file;
 var canvas, camera;
 canvas =  rndContainor.querySelector("canvas");
 //setTimeout(handleResize, 100);
-
+var icons = document.querySelectorAll(".skill-icon");
 if(rndContainor)
     setInterval(function () {
         if(rndContainor.className === "active" && canvas)

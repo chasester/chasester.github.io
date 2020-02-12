@@ -7,6 +7,7 @@
 <html>
 	<head>
 		<title>Dimension by HTML5 UP</title>
+		<script src="https://kit.fontawesome.com/7207c9d20a.js" crossorigin="anonymous"></script>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -32,7 +33,7 @@
 							<ul>
 								<li><a href="#intro">Intro</a></li>
 								<li><a href="#work">Work</a></li>
-								<li><a href="#about">About</a></li>
+								<li><a href="#skills">Skills</a></li>
 								<li><a href="https://resume.creddle.io/resume/5xk25r0nreq">Résumé</a></li>
 								<!--<li><a href="#elements">Elements</a></li>-->
 							</ul>
@@ -66,23 +67,46 @@
 									<!-- <a href="https://codepen.io/chase-wenner/pen/LaarWr?editors=1100" class="gallery-item"><img src="https://s3-us-west-2.amazonaws.com/i.cdpn.io/3019295.LaarWr.6111d519-8c3d-4367-ac76-b997c1c26f28.png"/></a>
 									<a href="https://codepen.io/chase-wenner/pen/qvyOzw" class="gallery-item"><img src="https://s3-us-west-2.amazonaws.com/i.cdpn.io/3019295.qvyOzw.08b8cc5f-9ecf-4746-aa62-5a458fa91d2e.png"/></a> -->
 								</div>
-								<ul class="icons">
+								<!-- <ul class="icons">
 									<li><a href="https://github.com/chasester" class="icon fa-github"><span class="label">GitHub</span></a></li>
 									<li><a href="mailto:chasester123@gmail.com" class="icon fa-envelope-open"><span class="label">Email</span></a></li>
 									<li><a href="tel:+16148247511" class="icon fa-phone"><span class="label">Phone</span></a></li>
-								</ul>
+								</ul> -->
 							</article>
 
-						<!-- About -->
-							<article id="about">
-								<h2 class="major">About</h2>
-								<span class="image main"><img src="images/pic01.jpg" alt="" />In a professional context it often happens that private or corporate clients corder a publication to be made and presented with the actual content still not being ready. Think of a news blog that's filled with content hourly on the day of going live. However, reviewers tend to be distracted by comprehensible content, say, a random text copied from a newspaper or the internet. The are likely to focus on the text, disregarding the layout and its elements. Besides, random text risks to be unintendedly humorous or offensive, an unacceptable risk in corporate environments. Lorem ipsum and its many variants have been employed since the early 1960ies, and quite likely since the sixteenth century.</span>
-								<p></p>
+						<!-- Skills -->
+							<article id="skills" onload="fadein">
+								<!-- script to allow slight osolitory fade for effect purposes; Wrapped with time out so the main.js can load and handle assiging icons so we dont have to do a query call-->
+								<script>setTimeout(()=> setInterval(()=> {icons.forEach(x => x.style.opacity = String(Math.sin(new Date().getTime()*0.001)*0.15+0.85))}, 20), 200);</script>
+
+								<h2 class="major">Skills</h2>
 								<ul class="icons">
+									<li><span class="icon skill-icon fab fa-github fa-5x"></span><div style="font-size: 20px; text-align: center;">GitHub</div></li>
+									<li><span class="icon skill-icon fab fa-node-js fa-5x"></span><div style="font-size: 20px; text-align: center;">Node.js</div></li>
+									<li><span class="icon skill-icon fab fa-css3-alt fa-5x"></span><div style="font-size: 20px; text-align: center;">css</div></li>
+									<li><span class="icon skill-icon fab fa-html5 fa-5x"></span><div style="font-size: 20px; text-align: center;">Html</div></li>
+									<li><span class="icon skill-icon fab fa-python fa-5x"></span><div style="font-size: 20px; text-align: center;">Python</div></li>
+									<li><span class="icon skill-icon fab fa-java fa-5x"></span><div style="font-size: 20px; text-align: center;">Java</div></li>
+									<li><span class="icon skill-icon fab fa-react fa-5x"></span><div style="font-size: 20px; text-align: center;">React</div></li>
+									<li><span class="icon skill-icon fab fa-less fa-5x"></span><div style="font-size: 20px; text-align: center;">Less</div></li>
+									<li><span class="icon skill-icon fab fa-php fa-5x"></span><div style="font-size: 20px; text-align: center;">PHP</div></li>
+									<li><span class="icon skill-icon fab fa-unity fa-5x"></span><div style="font-size: 20px; text-align: center;">Unity</div></li>
+									<li><span class="icon skill-icon fab fa-buffer fa-5x"></span><div style="font-size: 20px; text-align: center;">SQL</div></li>
+									<li><span class="icon skill-icon fab fa-git-alt fa-5x"></span><div style="font-size: 20px; text-align: center;">Git</div></li>
+									<li><span class="icon skill-icon fab fa-deskpro fa-5x"></span><div style="font-size: 20px; text-align: center;">Postgres</div></li>
+									<li><img class="icon skill-icon" src="images/UeWhiteLogo.png" height="90px"></img><div style="font-size: 20px; text-align: center;">Postgres</div></li>
+									<li><img class="icon skill-icon" style="filter: grayscale(100%); margin-top: 20 px" height="90px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/ISO_C%2B%2B_Logo.svg/200px-ISO_C%2B%2B_Logo.svg.png"></img><div style="font-size: 20px; text-align: center;">C/C++</div></li>
+									<li><img class="icon skill-icon" style="filter: grayscale(100%); margin-top: 20 px" height="90px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/C_Sharp_logo.svg/200px-C_Sharp_logo.svg.png"></img><div style="font-size: 20px; text-align: center;">C#/.net</div></li>
+									<li><img class="icon skill-icon" style="filter: grayscale(100%) invert(1); margin-top: 20 px" height="90px" src="https://c7.uihere.com/icons/706/786/397/blender-c7448f26b02951f25358b4553eae0bb5.svg"></img><div style="font-size: 20px; text-align: center;">Blender</div></li>
+									<li><img class="icon skill-icon" style="filter: grayscale(100%); margin-top: 20 px" height="79px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Adobe_Photoshop_CC_icon.svg/200px-Adobe_Photoshop_CC_icon.svg.png"></img><div style="font-size: 20px; text-align: center;">Photoshop</div></li>
+									<li><img class="icon skill-icon" style="filter: grayscale(100%) invert(1); margin-top: 20 px" height="79px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Adobe_Illustrator_icon_CS6.svg/200px-Adobe_Illustrator_icon_CS6.svg.png"></img><div style="font-size: 20px; text-align: center;">Illustrator</div></li>
+									<!-- <li><img src="">C++</div><div style="font-size: 20px; text-align: center;">C++</div></li> -->
+								</ul>
+<!-- 								<ul class="icons">
 									<li><a href="https://github.com/chasester" class="icon fa-github"><span class="label">GitHub</span></a></li>
 									<li><a href="mailto:chasester123@gmail.com" class="icon fa-envelope-open"><span class="label">Email</span></a></li>
 									<li><a href="tel:+16148247511" class="icon fa-phone"><span class="label">Phone</span></a></li>
-								</ul>
+								</ul> -->
 							</article>
 
 						<!-- Résumé -->

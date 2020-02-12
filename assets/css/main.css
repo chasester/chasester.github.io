@@ -621,7 +621,22 @@ input, select, textarea {
 		.icon > .label {
 			display: none;
 		}
-
+	.white-icon
+	{
+		display: flex;
+		justify-content: center;
+		align-items: baseline;
+		background-color: white;
+		text-align: center; 
+		vertical-align: middle; 
+		color: #000000;
+		padding: 5% 5px;
+		height: 64px;
+		border-radius: 5%;
+		text-align: center;
+		font-weight: 900;
+		font-size: 28px;
+	}
 	.slow-spin
 	{
 		-webkit-animation: fa-spin 4s infinite linear;
