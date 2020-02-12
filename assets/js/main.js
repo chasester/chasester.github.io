@@ -3,7 +3,7 @@
 	html5up.net | @ajlkn
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 */
-
+var icons = document.querySelectorAll(".skill-icon");
 (function($) {
 
 	var	$window = $(window),
@@ -30,6 +30,15 @@
 				$body.removeClass('is-preload');
 			}, 100);
 		});
+	//add skill icons occolation		
+	
+	var gobackhash =  //object that handles the call stack of windows globably (So we dont have to handle it on each redirect)
+	{
+		//key is the location that we are comming from
+		//value is the location we will go back to defults to '' if key is undefined
+		"#randommap": "work",
+		"#dungongenerator": "work",
+	}
 
 	// Fix: Flexbox min-height bug on IE.
 		if (browser.name == 'ie') {
@@ -295,7 +304,8 @@
 					$('<div class="close">Close</div>')
 						.appendTo($this)
 						.on('click', function() {
-							location.hash = '';
+							console.log(location.hash)
+							location.hash = gobackhash[location.hash.toLowerCase()] ? gobackhash[location.hash.toLowerCase()] : '';
 						});
 
 				// Prevent clicks from inside article from bubbling.

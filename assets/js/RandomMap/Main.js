@@ -595,11 +595,10 @@ class RandomMap
 //this is a quick wrapper that makes sure that we are the active window before we run our code
 rndContainor = document.querySelector("article#RandomMap")
 var Map = new RandomMap(); //first instance of class built on load of file;
-
+var RegenerateRandomMap = () => Map = new RandomMap();
 var canvas, camera;
 canvas =  rndContainor.querySelector("canvas");
-//setTimeout(handleResize, 100);
-var icons = document.querySelectorAll(".skill-icon");
+
 if(rndContainor)
     setInterval(function () {
         if(rndContainor.className === "active" && canvas)
