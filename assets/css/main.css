@@ -776,7 +776,12 @@ input, select, textarea {
 		dl dd {
 			margin-left: 2rem;
 		}
-
+#two-stack
+{
+	display: flex; 
+	flex-direction: column; 
+	justify-content: space-between;
+}
 /* Actions */
 
 	ul.actions {
