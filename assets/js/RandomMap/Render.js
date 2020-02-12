@@ -4,7 +4,6 @@ MIT License: See https://github.com/gorhill/Javascript-Voronoi/LICENSE.md
 
 Author: Raymond Hill (rhill@raymondhill.net)
 Contributor: Jesse Morgan (morgajel@gmail.com)
-File: rhill-voronoi-core.js
 Version: 0.98
 Date: January 21, 2013
 Description: This is my personal Javascript implementation of
@@ -18,6 +17,7 @@ History: See https://github.com/gorhill/Javascript-Voronoi/CHANGELOG.md
 /*
  * Random Continental map version by Chase Wenner
  * Used as is with Heavy modifications
+ * 
  * Permission to use, copy, modify, and distribute this software for any
  * purpose without fee is hereby granted, provided that this entire notice
  * is included in all copies of any software which is or includes a copy
@@ -254,5 +254,3 @@ var RandomMapRender = {
             }
         }
     };
-//RandomMapRender.init();
-rndContainor = document.querySelector("#RandomMap")

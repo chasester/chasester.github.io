@@ -137,8 +137,6 @@
 						</ul>
 					-->
 							</article>
-
-						<!-- Résumé -->
 							<!-- Random Map -->
 							<article id="RandomMap">
 								<h3 class="major">Random Contintental Map</h3>
@@ -155,11 +153,26 @@
 									Hold Shift to Move Faster. Click Esc to regain control of your mouse.
 								</p>
 							</article>
+						<!-- Dungeon Generator -->
+						<article id="DungeonGenerator">
+							<h3 class="major">Dungeon Path Generator</h3>
+							<div style="display: flex; justify-content: space-between; padding-bottom: 4%">
+							<canvas id="DungeonGeneratorCanvas" width="725" height="600" style="border:1px solid #c3c3c3;">
+								Your browser does not support the canvas element.
+							</canvas>
+							</div>
+							<button class="icon fab fa-refresh fa-x9" style="margin: 0 auto; text-align: center;" onclick="RegenerateDungeonMap()"> Regenerate </button>
+							<!-- <h6>Description</h6> -->
+							<p>
+								<h6 style="margin: 20px 0;">Controls</h6>
+								Click in the window To move around with WASD, zoom in and out with Q and E. 
+								Hold Shift to Move Faster. Click Esc to regain control of your mouse.
+							</p>
+						</article>
 
 						<!-- Elements -->
 							<article id="elements">
 								<h2 class="major">Elements</h2>
-
 								<section>
 									<h3 class="major">Text</h3>
 									<p>This is <b>bold</b> and this is <strong>strong</strong>. This is <i>italic</i> and this is <em>emphasized</em>.
@@ -425,17 +438,20 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 			<!-- Internal Animation directories-->
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+
+			<!-- Interal Utls Libraries -->
+			<script src="assets/js/Utls/Random.js"></script>
+			<script src="assets/js/Utls/Math.js"></script>
+			<script src="assets/js/Utls/Camera.js"></script>
 			
 			<!-- Internal Random Map Directories-->
 			<script src="assets/js/RandomMap/Voronoi.js"></script> <!--Base Voronoi graph code Pulled from external directory-->
-			<script src="assets/js/RandomMap/Render.js"></script>
-			<script src="assets/js/RandomMap/Random.js"></script>
-			<script src="assets/js/RandomMap/Math.js"></script>
 			<script src="assets/js/RandomMap/Utls.js"></script>
-			<script src="assets/js/RandomMap/Camera.js"></script>
+			<script src="assets/js/RandomMap/Render.js"></script>
 			<script src="assets/js/RandomMap/Main.js"></script>
 
 			<!-- Internal Dungon Generator Directories-->
+			<script src="assets/js/DungeonGenerator/Main.js"></script>
 
 	</body>
 </html>

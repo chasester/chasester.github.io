@@ -304,7 +304,6 @@ var icons = document.querySelectorAll(".skill-icon");
 					$('<div class="close">Close</div>')
 						.appendTo($this)
 						.on('click', function() {
-							console.log(location.hash)
 							location.hash = gobackhash[location.hash.toLowerCase()] ? gobackhash[location.hash.toLowerCase()] : '';
 						});
 

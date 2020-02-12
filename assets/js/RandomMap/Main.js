@@ -1,26 +1,25 @@
 //Main loop for the RanomMap generator
 //This is responsible for most of the logic and calling the renderer inbtween intervles
 
-
-var STEP_FUNC = //string function types which allow us to to do dynamic step calling
-{
-    "Init":                 "GenerateSites", //init only runs on the first pass
-    "GenerateSites":        "LloydRelaxation",
-    "LloydRelaxation":      "PatelRelaxation",
-    "PatelRelaxation":      "HeightGeneration",
-    "HeightGeneration":     "LandBuilding",
-    "LandBuilding":         "CoastalCleanup",
-    "CoastalCleanup":       "LandGathering",
-    "LandGathering":        "TerrianNormalization",
-    "TerrianNormalization": "TempatureRoughCover",
-    "TempatureRoughCover":  "WaterSheding",
-    "WaterSheding":         "GenerateSites"
-}
-
 class RandomMap
 {
+    static STEP_FUNC = //string function types which allow us to to do dynamic step calling
+    {
+            "Init":                 "GenerateSites", //init only runs on the first pass
+            "GenerateSites":        "LloydRelaxation",
+            "LloydRelaxation":      "PatelRelaxation",
+            "PatelRelaxation":      "HeightGeneration",
+            "HeightGeneration":     "LandBuilding",
+            "LandBuilding":         "CoastalCleanup",
+            "CoastalCleanup":       "LandGathering",
+            "LandGathering":        "TerrianNormalization",
+            "TerrianNormalization": "TempatureRoughCover",
+            "TempatureRoughCover":  "WaterSheding",
+            "WaterSheding":         "GenerateSites"
+    }
     constructor()
     {
+
         this.Voronoi = new Voronoi(); //external library class
         this.diagram = null; //diagram is the data from the voronoi class
         this.graph ={ //this is our interal storage of the data we get from the graph set up exactly the same as the diagram but with internal class variables
@@ -41,9 +40,9 @@ class RandomMap
         {//min default max
 
             "Seed Properties": [], //create a header
-            "Map Seed":     [-99999, 0, 99999],
+            "Map Seed":     [-99999,  Math.floor(Math.random()*9999), 99999],
             "Variant":  [-99999, Math.floor(Math.random()*9999), 99999],
-            "Evolution Seed": [-99999, 0, 99999],
+            "Evolution Seed": [-99999,  Math.floor(Math.random()*9999), 99999],
 
             "Map Properties": [], //create a header
             "Water Height": [0.0001, 0.35, 1.0],
@@ -150,7 +149,7 @@ class RandomMap
         {
             console.log(this.funcStep)
             this.dataStack = {}; //reset data stack so we dont have collisions
-            this.funcStep = STEP_FUNC[this.funcStep]; //stack the next step into the slot for next cycle
+            this.funcStep = RandomMap.STEP_FUNC[this.funcStep]; //stack the next step into the slot for next cycle
         }
 
         if(this.shouldRender) RandomMapRender.render(this.graph, camera); //only render if we should render so we dont get weird rerender glitch
@@ -165,7 +164,7 @@ class RandomMap
         this.Seeds.Map = new Random(this.props["Map Seed"][1]);
         this.Seeds.Var = new Random(this.props["Variant"][1]);
         this.Seeds.Evol = new Random(this.props["Evolution Seed"][1]);
-        console.log(`Using Seeds:\n\tMap:${this.Seeds.Map.s}\n\tVarient:${this.Seeds.Var.s}\n\t${this.Seeds.Evol.s}` ) 
+        console.log(`Using Seeds:\n\tMap:${this.Seeds.Map.s}\n\tVarient:${this.Seeds.Var.s}\n\tEvolution:${this.Seeds.Evol.s}` ) 
         return false;
     }
     GenerateSites()
