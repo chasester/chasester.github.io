@@ -1,0 +1,9 @@
+class CanvasTarget
+{
+    
+}
+
+class CanvasManger
+{
+    
+}
