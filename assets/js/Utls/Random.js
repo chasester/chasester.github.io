@@ -22,9 +22,21 @@ class Random
     }
     randomRange(l,h) {return this.random() * (h-l)+l}
     setSeed(seed){s = seed; t = 1; } //when seed is reset reset t; should be called over directly setting s;
+    shuffle(a) {
+        var j, x, i;
+        for (i = a.length - 1; i > 0; i--) {
+            j = Math.floor(this.random() * (i + 1));
+            x = a[i];
+            a[i] = a[j];
+            a[j] = x;
+        }
+        return a;
+    }
 }
 
 
 //if a static number is passed in here then it can work just like a standard Seeded random (for debugging)
 const random = new Random(Math.random()*99999999* (Math.random()>=0.5 ? 1 : -1)) //for pure randomness that is not seed controled, to replace Math.random
 //const random = new Random(100); //use in place for controled random
+
+
