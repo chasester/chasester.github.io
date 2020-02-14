@@ -31,16 +31,8 @@ History: See https://github.com/gorhill/Javascript-Voronoi/CHANGELOG.md
 
 
 var RandomMapRender = {
-    voronoi: new Voronoi(),
-    sites: [],
-    diagram: null,
-    margin: 0.001,
     canvas: null,
     bbox: {xl:0,xr:800,yt:0,yb:600},
-    benchmarkTimer: null,
-    benchmarkTimes: new Array(50),
-    benchmarkPointer: 0,
-    benchmarkMaxSites: 100,
 
     init: function(canvas) {
         this.canvas = canvas
@@ -58,13 +50,6 @@ var RandomMapRender = {
         ctx.textAlign = "center"
         ctx.font = "50px Arial";
         ctx.fillText("Loading...",this.canvas.width/2,this.canvas.height/2);
-        },
-
-    updateStats: function() {
-        if (!this.diagram) {return;}
-        var e = document.getElementById('voronoiStats');
-        if (!e) {return;}
-        e.innerHTML = '('+this.diagram.cells.length+' Voronoi cells computed from '+this.diagram.cells.length+' Voronoi sites in '+this.diagram.execTime+' ms &ndash; rendering <i>not</i> included)';
         },
 
     render: function(diagram, camera) {
@@ -143,7 +128,7 @@ var RandomMapRender = {
             //rotation: {x1,x2,x3,  y1,y2,y3,  z1,z2,z3} //maybe add this
         } */
         //bounds is our basic box which the camera is viewing currently, dont send things to the contex render if they arnt visible
-        let bounds = new Rect(cammatix.position.x, cammatix.position.y,(cammatix.position.x + canvas.width)/cammatix.zoom, (cammatix.position.y + canvas.height)/cammatix.zoom);
+        let bounds = new Rect(cammatix.position.x, cammatix.position.y,(cammatix.position.x + this.canvas.width)/cammatix.zoom, (cammatix.position.y + this.canvas.height)/cammatix.zoom);
 
         let len = diagram.cells.length, arr = diagram.cells, x,v, flag = setting.showsites,
         o = new Vec2(-bounds.minX,-bounds.minY), z = new Vec2(cammatix.zoom, cammatix.zoom); //passing in negative so an add is a sub
