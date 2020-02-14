@@ -1,7 +1,7 @@
 //Main loop for the RanomMap generator
 //This is responsible for most of the logic and calling the renderer inbtween intervles
 
-class RandomMap
+class RandomMap extends CanvasTarget
 {
     static STEP_FUNC = //string function types which allow us to to do dynamic step calling
     {
@@ -19,6 +19,10 @@ class RandomMap
     }
     constructor()
     {
+        let container = document.querySelector("article#RandomMap");
+        let canvas = container.querySelector("canvas");
+        super(container,canvas);
+        //super declares containter canvas and camera properties of this class
 
         this.Voronoi = new Voronoi(); //external library class
         this.diagram = null; //diagram is the data from the voronoi class
@@ -152,15 +156,14 @@ class RandomMap
             this.funcStep = RandomMap.STEP_FUNC[this.funcStep]; //stack the next step into the slot for next cycle
         }
 
-        if(this.shouldRender) RandomMapRender.render(this.graph, camera); //only render if we should render so we dont get weird rerender glitch
+        if(this.shouldRender) RandomMapRender.render(this.graph, this.camera); //only render if we should render so we dont get weird rerender glitch
     }
     //function in order of Step Functions
     Init()
     {
-        this.canvas = canvas; //keep a reference just in case
-        this.bounds = new Rect(0,0,canvas.width, canvas.height);
+        this.bounds = new Rect(0,0,this.canvas.width, this.canvas.height);
         this.BuildCustomGraph();
-        RandomMapRender.init(canvas, this.graph);
+        RandomMapRender.init(this.canvas, this.graph);
         this.Seeds.Map = new Random(this.props["Map Seed"][1]);
         this.Seeds.Var = new Random(this.props["Variant"][1]);
         this.Seeds.Evol = new Random(this.props["Evolution Seed"][1]);
@@ -589,10 +592,10 @@ class RandomMap
         return true;
     }
 }
-
-
+CanvasMgr.AddCanvas(new RandomMap());
+var RegenerateRandomMap = () => Map = new RandomMap();
 //this is a quick wrapper that makes sure that we are the active window before we run our code
-rndContainor = document.querySelector("article#RandomMap")
+/* rndContainor = document.querySelector("article#RandomMap")
 var Map = new RandomMap(); //first instance of class built on load of file;
 var RegenerateRandomMap = () => Map = new RandomMap();
 var canvas, camera;
@@ -610,7 +613,7 @@ if(rndContainor)
         }
 }, 150);
 else
-    console.error("could not mount canvas to dom, this could be due to browser incompatiblity");
+    console.error("could not mount canvas to dom, this could be due to browser incompatiblity"); */
 
 /* window.addEventListener("resize", handleResize);
 
