@@ -148,5 +148,77 @@ class Branch
         if(this.dir == 2 || this.dir == 3) return Branch.Random.random() > 0.5 ? 0 : 1;
         return this.dir;
     }
+    draw_back(world)
+    {
+        //reverse my direction
+        let dir = directionValues[direction[this.dir]];
+        dir.x *= -1; dir.y *= -1;
 
+        let count, i_loc, loc, t;
+        this.location.x = Math.min(Math.max(this.location.x, 0), world[0].length);
+        this.location.y = Math.min(Math.max(this.location.y, 0), world.length);
+        //for(let i = 0, len = Math.max(world.length, world[0].length)+1; i < len; i++) safe way to do it but whats the fun in that
+        while (true)
+        {
+            count = 0;
+            i_loc = null;
+            for(let i = 0; i < 4; i++) //go through 4 cardinal directions
+            {
+                loc = this.location.add(directionValues[direction[i]]);
+                t = world[loc.y][loc.x];
+                if(t && t.type == Tile.TYPE.Floor) { count += 1; i_loc = loc;} //if we find a floor tile then set its location and then add count
+            }
+            if(count > 1) break; //we have 2 tiles that are floor we are back in a room so we can stop
+            //else fill in the last tile we where at and move us to the open tile near us
+            t = world[this.location.y][this.location.x];
+            if(t) t.type = Tile.TYPE.None;
+            if(i_loc == null) { console.log("Error"); break;} //this should nv happen unless some weird corner case i cant think of rn
+            this.location = i_loc;
+        }
+        return false;
+    }
+    Move(world, branches) //main loop
+    {
+        let random = Branch.Random.random();
+        this.decay -= 1;
+        this.location = this.location.add(directionValues[direction[this.dir]])
+        if(this.decay < 10)
+        {
+            if(random()*10 - this.decay > 0)
+            {
+                this.CreateRoom(world.branches,false,true);
+                return self.draw_back(world);
+            }
+        }
+        let change = false;
+        if(this.dir_chance > random())
+        {
+            this.dir = this.ChangeDirection();
+            change = true;
+        }
+        let t = world[this.location.y][this.location.x];
+        if(!t)return this.draw_back(world); //ran out of the map
+        if(t.type == Tile.TYPE.floor) return false; //ran into another branch
+        try{ //now we need to check if there is a room near us so we dont get wierd room cuts that make odd shapes. Basically check a one space margin to make sure we arent running along a room
+            if(self.dir > 1 && change == false) //this is nor perfect as this can cause some weird corner rooms on the edges but these are not very odd so we will accept them
+                for(let y = -1; y < 2; y+=2) //check n s
+                    if(world[this.location.y + y][this.location.x].type == Tile.TYPE.Floor)
+                    {
+                        world[this.location.y][this.location.x].type = Tile.TYPE.Floor;
+                        return false; //kill brach
+                    }
+            else if(change == false)
+                for(let x = -1; x < 2; x+=2) //check e w
+                    if(world[this.location.y][this.location.x + x].type == Tile.TYPE.Floor)
+                    {
+                        world[this.location.y][this.location.x].type = Tile.TYPE.Floor;
+                        return false; //kil branch
+                    }
+        } catch {return this.draw_back;} //we are 1 tile from the edge of the map so lets delete cuz we arent gonna be able to make any more rooms (unless we change in the one direction which is unlikely)
+        //if change == true then we always go here
+        this.room_step += 1
+        if(self.room_step > 0) //force a room as much as posible so we can make sure we have lots of rooms
+            return self.CreateRoom(world, branches);
+        t.type = Tile.TYPE.Floor;
+    }
 }
