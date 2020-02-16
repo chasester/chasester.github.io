@@ -45,19 +45,37 @@ class DungeonMap extends CanvasTarget
         let dx = Math.ceil(this.bounds.width()/this.graph.cellSize)+1;
         let dy = Math.ceil(this.bounds.height()/this.graph.cellSize)+1;
         let arr, ids = [];
+        let cellSize = this.graph.cellSize;
+
+        //create a random list of ids cuz we want there to be some cool colorization. Ids are unique but are randomly ordered to allow for some cool color coding
         for(let i = 0; i < dx*dy; i++) ids.push(i);
         random.shuffle(ids);
+
         //always build our arrays y then x to keep things in right up to left down
         for(let y = 0; y < dy; y++)
         {
             arr = [];
             for(let x = 0; x < dx; x++)
             { 
-                arr.push({id: ids.pop(), x: x, y: y});
+                arr.push(new Tile(ids.pop(), {x: x*cellSize, y: y*cellSize}, {x:x,y:y}));
             }
             this.graph.map.push(arr);
         }
         return false;
+    }
+    GenerateRooms()
+    {
+        //bulk of what we will do is in this function loop
+        //Key: We are gonna draw a room (near) the center of the map. This will be the player spawn room
+        //We will add 4 branches allong the outsides of this room.
+        //Branches will exist untill, they are removed based on a degergation, as degergation gets lower
+        //the higher chance a branch is removed.
+        //Each round a branch can do 1 of 3 things.
+        //It draw a room if there is enough space for the size that it randomly draws(ie doesnt run into any active tiles marked as floor)
+        //it can create another branch in a orthogonal direction (at 90 degrees)
+        //it can roll to change directions, in an orthongal direction(at 90 degrees)
+        //If all of those fall then it will move forward,
+
     }
     Hold() //function to hold the next step (should be last step)
     {
