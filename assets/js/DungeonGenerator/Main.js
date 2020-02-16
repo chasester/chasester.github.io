@@ -70,11 +70,13 @@ class DungeonMap extends CanvasTarget
         //We will add 4 branches allong the outsides of this room.
         //Branches will exist untill, they are removed based on a degergation, as degergation gets lower
         //the higher chance a branch is removed.
-        //Each round a branch can do 1 of 3 things.
-        //It draw a room if there is enough space for the size that it randomly draws(ie doesnt run into any active tiles marked as floor)
-        //it can create another branch in a orthogonal direction (at 90 degrees)
-        //it can roll to change directions, in an orthongal direction(at 90 degrees)
-        //If all of those fall then it will move forward,
+        //Each round a branch can do 1 of 4 things:
+            //It draw a room if there is enough space for the size that it randomly draws(ie doesnt run into any active tiles marked as floor)
+            //it can create another branch in a orthogonal direction (at 90 degrees)
+            //it can roll to change directions, in an orthongal direction(at 90 degrees)
+            //If all of those fall then it will move forward,
+        //Each branch is ran through these things and the properties of that branch will determind its ablity or probability to do one of these 
+        
 
     }
     Hold() //function to hold the next step (should be last step)
