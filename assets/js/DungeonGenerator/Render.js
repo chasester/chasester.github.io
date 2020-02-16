@@ -50,7 +50,7 @@ var DungeonRenderer=
                 ctx.rect(x*size - bounds.minX, y*size - bounds.minY, size, size); //start vector, size vector
                 //js is a little wierd rather than erroring out when going out of bounds in an array it instead returns undefined
                 
-                if(map[y] === undefined || map[y][x] === undefined) ctx.fillStyle = "yellow"
+                if(map[y] === undefined || map[y][x] === undefined) ctx.fillStyle = "Black"
                 else ctx.fillStyle = this.getFillStyle(map[y][x],x,y);
                 ctx.fill();
             }
@@ -59,6 +59,15 @@ var DungeonRenderer=
     getFillStyle(i)
     {
         let c = random.hash(i.id); //proboably a bit shift would be better
-        return `rgb(${c*255},${c*255},${c*255})`;
+        switch(i.type)
+        {
+            case Tile.TYPE.None:           
+                return `rgb(${c*5},${c*5},${c*5})`;
+            case Tile.TYPE.Wall: 
+                return `rgb(${c*20+50},${c*20+50},${c*20+50})`
+            case Tile.TYPE.Floor:
+                return `rgb(${c*20+100},${c*20+100},${c*20+100})`
+        }
+        
     }
 }

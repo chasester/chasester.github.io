@@ -17,7 +17,6 @@ const SQRT2 = 7.071;
 //pretty strait forward so no point break it down;
 const floatObjectParser = (x,y) => ( y==undefined &&  typeof x ===  Number ? new Vec2(x,x) : typeof x === Number ? new Vec2(x,y) : new  Vec2(x.x,x.y) );
 
-
 class Vec2 
 {
     //Basic vector2d math library class
@@ -83,6 +82,11 @@ class Vec2
         return new Vec2(this.x*(1-w) + v.x*w, this.y*(1-w) + v.y*w);
     }
 }
+
+//8 way directional values
+const directionValues = {"n": new Vec2(0,-1), "s": new Vec2(0,1), "e": new Vec2(1,0), "w": new Vec2(-1,0)}
+const direction = ["n","s","e","w"]
+const directionOffset = [new Vec2(-2,-1), new Vec2(-2,0), new Vec2(0,-2), new Vec2(-1,-2)];
 
 class Color
 {
