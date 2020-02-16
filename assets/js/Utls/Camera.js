@@ -71,9 +71,9 @@ class Camera //maybe remove the key events and move to new class if we have a mo
                 zoom = this.cammatix.zoom;
                 zoom -= this.cammatix.zoom > 1 ? !e.shiftKey  ? 0.1 : 1  : 0;
                 zoom = Math.max(zoom, 1);
-                console.log(zoom, this.cammatix.zoom);
+               /*  console.log(zoom, this.cammatix.zoom);
                 if(zoom == this.cammatix.zoom) break;
-                offset = this.cammatix.zoom - zoom;
+                offset = this.cammatix.zoom - zoom; */
                 /* this.cammatix.position.x -= (offset*this.target.width*0.125)/zoom;
                 this.cammatix.position.y -= (offset*this.target.height*0.125)/zoom; */
                 this.cammatix.zoom = zoom;
@@ -82,8 +82,8 @@ class Camera //maybe remove the key events and move to new class if we have a mo
                 zoom = this.cammatix.zoom;
                 zoom += this.cammatix.zoom < 20 ? !e.shiftKey  ? 0.1 : 1 : 0.5;
                 zoom = Math.min(zoom, 20);
-                if(zoom == this.cammatix.zoom) break;
-               offset = this.cammatix.zoom - zoom;
+               /*  if(zoom == this.cammatix.zoom) break;
+               offset = this.cammatix.zoom - zoom; */
                 /* this.cammatix.position.x -= (offset*this.target.width*0.125)/zoom;
                 this.cammatix.position.y -= (offset*this.target.height*0.125)/zoom; */
                 this.cammatix.zoom = zoom;
