@@ -46,7 +46,7 @@ class Branch
         this.room_exit = 0;
         this.b_chance = b_chance;
         this.dir_chance = dir_chance;
-        this.room = None;
+        this.room = null;
         this.room_step = -5;
     }
 
@@ -74,9 +74,9 @@ class Branch
             return this.draw_back(world); //to close to the edge of the map
         try //wrap it in this so we can easy break
         {
-            for(let y =-1, len = rsize.y+1; y < len; y++)
+            for(let y =-1, leny = rsize.y+1; y < leny; y++)
             {
-                for(let x = -1, len = rsize.x+1; x < len; x++)
+                for(let x = -1, lenx = rsize.x+1; x < lenx; x++)
                 {
                     t = world[rstart.y+y][rstart.x+x];
                     if(t.type == Tile.TYPE.Floor) //t.type will error if t is undefined 
@@ -91,8 +91,8 @@ class Branch
             {world[this.location.y][this.location.x] = 1; return true;} 
 
         //we didnt run into another branch or room so we can draw now
-        for(let y = 0, len = rsize.y; y < len; y++ )
-            for(let x =0, len = rsize.x; x < len; x++ )
+        for(let y = 0, leny = rsize.y; y < leny; y++ )
+            for(let x =0, lenx = rsize.x; x < lenx; x++ )
                 world[rstart.y+y][rstart.x + x] = 1;
     
         world[this.location.y][this.location.x].type = Tile.TYPE.Floor; //assign the tile the branch is on (this is one unit from the room)
@@ -179,14 +179,14 @@ class Branch
     }
     Move(world, branches) //main loop
     {
-        let random = Branch.Random.random();
+        let random = () => Branch.Random.random();
         this.decay -= 1;
         this.location = this.location.add(directionValues[direction[this.dir]])
         if(this.decay < 10)
         {
             if(random()*10 - this.decay > 0)
             {
-                this.CreateRoom(world.branches,false,true);
+                this.CreateRoom(world, branches,false,true);
                 return self.draw_back(world);
             }
         }
