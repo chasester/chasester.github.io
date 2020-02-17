@@ -2,7 +2,9 @@ class DungeonMap extends CanvasTarget
 {
     static FUNC_STEP = 
     {
-        "Init": "Hold"
+        "Init": "CreateWelcomeRoom",
+        "CreateWelcomeRoom": "GenerateRooms",
+        "GenerateRooms": "Hold"
     }
     constructor()
     {
@@ -11,19 +13,31 @@ class DungeonMap extends CanvasTarget
         super(container,canvas);
         //addes canvas, container and camera to the class props list
         this.bounds = new Rect(0,0,canvas.width, canvas.height);
-        this.funcStep = "Init";
+/*         this.funcStep = "Init";
         this.graph = {map: [], cellSize: 10};
+        this.dataStack = {}; */
+        this.Regenerate();
+
     }
     Regenerate()
     {
         this.funcStep = "Init";
-        this.graph = {map: [], cellSize: 10};
-        this.dataStack = {};
+        this.graph = { //main stack of persistent data
+            //data
+            map: [], //2d array (y then x -> top right to bottom left) of Type Tile
+            branches: [],  // of type branches
+            room: [], //of type room
+
+            //properties
+            cellSize: 20
+        };
+        this.dataStack = {}; //main stack of volital data
         this.shouldRender = true;
     }
     GenerateMap()
     {
         //FUNCTION SELECTOR WHICH WILL CALL ITS SELF RECURSIVELY
+        //See Canvas Manger and Canvas target relationship
         // if function returns false then map generator will move to next step
         // all data is held into the class data pool and is passed between functions
         // at the end of each cycle a delay is called to allow for the canvas to render
@@ -39,6 +53,9 @@ class DungeonMap extends CanvasTarget
     }
     Init()
     {
+        //animation check delay
+        if(this.dataStack.nexttime) return this.dataStack.nexttime > new Date().getTime();
+
         this.shouldRender = true;
         DungeonRenderer.init(this.canvas);
         //build the 2d array
@@ -61,7 +78,35 @@ class DungeonMap extends CanvasTarget
             }
             this.graph.map.push(arr);
         }
-        return false;
+        
+        //adds delay for animation
+        this.dataStack.nexttime = new Date().getTime()+1000;
+        return true;
+    }
+    CreateWelcomeRoom()
+    { //keep in mind that if 3/4 of width or height is < 5 then you could have an overdraw (though in our case this wont happen)
+        if(this.dataStack.nexttime) return this.dataStack.nexttime > new Date().getTime();
+        let randomInt = (a,b) => Math.floor(Branch.Random.randomRange(a,b)),
+        size = new Vec2(this.graph.map[0].length, this.graph.map.length),
+        home = new Vec2(
+            randomInt(Math.floor(size.x/4), Math.floor(3*size.x/4)), 
+            randomInt(Math.floor(size.y/4), Math.floor(3*size.y/4))
+            ),
+        start = new Vec2(home.x-2, home.y-2),
+        rsize = new Vec2(5,5);
+        console.log(this.graph.map[start.y][start.x]);
+        for(let y = 0, leny = rsize.y; y < leny; y++)
+            for(let x = 0, lenx = rsize.x; x< lenx; x++)
+                this.graph.map[start.y+y][start.x+x].type = Tile.TYPE.Floor;
+        this.graph.map[home.y][home.x].type = Tile.TYPE.Entrance;
+        this.graph = {...this.graph, home, size};
+        
+        for(let i = 0; i < 4; i++)//create our braches out of the home room
+            this.graph.branches.push(new Branch(i, home.x+2*directionValues[direction[i]].x, home.y+2*directionValues[direction[i]].y, 100,0, Branch.Random.random()));
+        
+        //wait 2000 ms before going to next step
+        this.dataStack.nexttime = new Date().getTime()+1000;
+        return true;
     }
     GenerateRooms()
     {
@@ -76,8 +121,37 @@ class DungeonMap extends CanvasTarget
             //it can roll to change directions, in an orthongal direction(at 90 degrees)
             //If all of those fall then it will move forward,
         //Each branch is ran through these things and the properties of that branch will determind its ablity or probability to do one of these 
-        
+        //keep in mind all of these steps take place in the lower level, Branch.move() and subsiquent function stack.
 
+
+        //to keep this from running to fast we will set a limit
+        let mintime = this.dataStack.nexttime ? this.dataStack.nexttime : new Date().getTime();
+        let time = new Date().getTime();
+        let b, new_b = [], remove_b = [];
+        if(mintime >  time) return true; //skip frames till we get to the next frame we want to process data
+        //done so we can have a slower animation
+
+        this.dataStack.nexttime = time + 2000; //run every 200 millis
+        
+        //simple que system
+
+        for(let i = this.graph.branches.length; i--;) //go backwards so we can remove them in order using a simple while statement
+        { //never add or remove branches while looping, process these after
+            b = this.graph.branches[i];
+            if(b.Move(this.graph.map, new_b)) //if we return false we need removed
+                remove_b.push(i); //add to removal list
+        }
+        
+        //remove dead branches
+        //only works if we remove back to front, but since we started from the back these will only be in that order
+        while(remove_b.length) this.graph.branches.splice(remove_b.pop(), 1);
+
+        //birth new branches
+        if(new_b.length) this.graph.branches = [...this.graph.branches, ...new_b]; //equivalent to a += b; in most other langues
+
+
+        //if all branches are dead then we can move on to next step, untill then we just gonna keep on processing
+        return this.graph.branches.length > 0;
     }
     Hold() //function to hold the next step (should be last step)
     {
