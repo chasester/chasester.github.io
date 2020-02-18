@@ -137,7 +137,7 @@ var RandomMapRender = {
             x = arr[len];
             let h = random.hash(x.id);
             let color = this.getFillStyle(x);
-            //if(!bounds.check(x.center)) continue; //if not in the bounds then dont add to contex
+            if(!bounds.check(x.center)) continue; //if not in the bounds then dont add to contex
             ctx.beginPath();
             ctx.fillStyle = color;
             ctx.strokeStyle = color;
