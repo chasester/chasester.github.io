@@ -34,15 +34,27 @@ var DungeonRenderer=
         let dyi = Math.ceil(bounds.height()/minsize)+1; //same in other axis
 
         //ix iy becomes the starting indices of the array
-        let ix = Math.floor(bounds.minX/minsize);
-        let iy = Math.floor(bounds.minY/minsize);
+        let ix = Math.floor(bounds.minX/size);
+        let iy = Math.floor(bounds.minY/size);
 
         let x,y; //index x and y for final output
 
         //console.log(dxi, dyi);
-
+        for(y = 0, leny = map.length; y < leny; y++)
+        {
+            for(x = 0, lenx = map[0].length; x < lenx; x++)
+            {
+                px = (x*size - bounds.minX); py = (y*size - bounds.minY)
+                if(px < -size || py < -size || px > this.canvas.width+size || py > this.canvas.height+size) continue;
+                ctx.beginPath();
+                ctx.rect(px, py, size, size); //start vector, size vector
+                if(map[y] === undefined || map[y][x] === undefined) ctx.fillStyle = "Black"
+                else ctx.fillStyle = this.getFillStyle(map[y][x],x,y);
+                ctx.fill();
+            }
+        }
         //remember rending always goes top right and y then x 
-        for(let cy = 0; cy < dyi; cy++) //y is the index number we are on based on y*minsize + offset of camera
+        /* for(let cy = 0; cy < dyi; cy++) //y is the index number we are on based on y*minsize + offset of camera
         {
             for(let cx = 0; cx < dxi; cx++) //same but in the x
             {
@@ -55,7 +67,7 @@ var DungeonRenderer=
                 else ctx.fillStyle = this.getFillStyle(map[y][x],x,y);
                 ctx.fill();
             }
-        }
+        } */
         let b;
         for(let i = 0; i < branches.length; i++ )
         {
