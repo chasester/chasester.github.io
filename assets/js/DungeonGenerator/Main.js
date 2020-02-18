@@ -29,7 +29,7 @@ class DungeonMap extends CanvasTarget
             room: [], //of type room
 
             //properties
-            cellSize: 20
+            cellSize: 5
         };
         this.dataStack = {}; //main stack of volital data
         this.shouldRender = true;
@@ -131,21 +131,18 @@ class DungeonMap extends CanvasTarget
         if(mintime >  time) return true; //skip frames till we get to the next frame we want to process data
         //done so we can have a slower animation
 
-        this.dataStack.nexttime = time + 2000; //run every 200 millis
+        this.dataStack.nexttime = time + 200; //run every 200 millis
         
         //simple que system
 
-        for(let i = this.graph.branches.length; i--;) //go backwards so we can remove them in order using a simple while statement
+        for(let i = this.graph.branches.length; i--;) //go backwards so we can remove them in order 
         { //never add or remove branches while looping, process these after
+            //console.log(i);
             b = this.graph.branches[i];
-            if(b.Move(this.graph.map, new_b)) //if we return false we need removed
-                remove_b.push(i); //add to removal list
+            if(b.Move(this.graph.map, new_b) == false) //if we return false we need removed
+                this.graph.branches.splice(i, 1) //add to removal list
         }
         
-        //remove dead branches
-        //only works if we remove back to front, but since we started from the back these will only be in that order
-        while(remove_b.length) this.graph.branches.splice(remove_b.pop(), 1);
-
         //birth new branches
         if(new_b.length) this.graph.branches = [...this.graph.branches, ...new_b]; //equivalent to a += b; in most other langues
 
@@ -155,7 +152,6 @@ class DungeonMap extends CanvasTarget
     }
     Hold() //function to hold the next step (should be last step)
     {
-        //console.log(this.graph.map);
         return true;
     }
 }
