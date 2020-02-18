@@ -12,7 +12,8 @@ class DungeonMap extends CanvasTarget
         let canvas = container.querySelector("canvas");
         super(container,canvas);
         //addes canvas, container and camera to the class props list
-        this.bounds = new Rect(0,0,canvas.width, canvas.height);
+        let over = 1;
+        this.bounds = new Rect(0,0,over*canvas.width, over*canvas.height);
 /*         this.funcStep = "Init";
         this.graph = {map: [], cellSize: 10};
         this.dataStack = {}; */
@@ -102,8 +103,12 @@ class DungeonMap extends CanvasTarget
         this.graph = {...this.graph, home, size};
         
         for(let i = 0; i < 4; i++)//create our braches out of the home room
-            this.graph.branches.push(new Branch(i, home.x+2*directionValues[direction[i]].x, home.y+2*directionValues[direction[i]].y, 100,0, Branch.Random.random()));
+            this.graph.branches.push(new Branch(i, home.x+2*directionValues[direction[i]].x, home.y+2*directionValues[direction[i]].y, 100, Branch.Random.random()*0.2, Branch.Random.random()*0.1));
         
+        //set up camera so its where ever this spawns
+        /* let minsize = this.graph.cellSize;
+        this.camera.cammatix.position = new Vec2((home.x*minsize)-(this.canvas.width/2), (home.y*minsize) - (this.canvas.height/2)); */
+
         //wait 2000 ms before going to next step
         this.dataStack.nexttime = new Date().getTime()+1000;
         return true;
