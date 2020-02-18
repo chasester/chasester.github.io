@@ -56,13 +56,17 @@ var DungeonRenderer=
                 ctx.fill();
             }
         }
+        let b;
         for(let i = 0; i < branches.length; i++ )
         {
-            let x = branches[i].location.x;
-            let y = branches[i].location.y;
+            b = branches[i];
+            x = b.location.x;
+            y = b.location.y;
             ctx.beginPath();
             ctx.rect(x*size - bounds.minX, y*size - bounds.minY, size, size);
-            ctx.fillStyle = "Red";
+            
+
+            ctx.fillStyle = `rgb(${random.hash(b.id)*50+200},${random.hash(b.id<<2)*100},${random.hash(b.id<<1)*100})` ;
             ctx.fill();
         }
 
