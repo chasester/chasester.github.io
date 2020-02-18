@@ -45,7 +45,7 @@ var DungeonRenderer=
             for(x = 0, lenx = map[0].length; x < lenx; x++)
             {
                 px = (x*size - bounds.minX); py = (y*size - bounds.minY)
-                if(px < -size || py < -size || px > this.canvas.width+size || py > this.canvas.height+size) continue;
+                if(px < -size || py < -size || px > this.canvas.width+size || py > this.canvas.height+size) continue; //using brute force as below method was not working due to bounds being incorrect
                 ctx.beginPath();
                 ctx.rect(px, py, size, size); //start vector, size vector
                 if(map[y] === undefined || map[y][x] === undefined) ctx.fillStyle = "Black"

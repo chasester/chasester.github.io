@@ -200,7 +200,7 @@ class Branch
             if(random()*10 - this.decay > 0)
             {
                 this.CreateRoom(world, branches,false,true);
-                return self.draw_back(world);
+                return this.draw_back(world);
             }
         }
         let change = false;
