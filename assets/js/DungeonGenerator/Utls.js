@@ -32,7 +32,7 @@ class Room //original alogoithm didnt use this, so this maybe added to code if i
 
 //old code 0 is wall and 1 is floor 
 //our code 0 is wall and 2 is floor, wall is a post effect
-var seed = Math.random();
+var seed = Math.random()*9999999;
 class Branch
 {
     static Random = new Random(seed); //set up a global random just so we can do seeding later
@@ -43,6 +43,7 @@ class Branch
         //chance - chance for creating a new branch
         //dir is the last direction traveled from;
         //room is the last room visited
+        this.id = Branch.Random.random()*999999999;
         this.dir = direction;
         this.location = new Vec2(x,y);
         this.decay = decay;
@@ -56,7 +57,7 @@ class Branch
     TryBranch() //should we branch off
     {
         let b = Branch.Random.random() > this.b_chance;
-        this.b_chance += b ? -0.01 : 0.5;
+        this.b_chance += b ? -0.01 : 0.05;
         return b;
     }
     CreateRoom(world, branches,canBranch=true, force =false) //should we try and draw a room
