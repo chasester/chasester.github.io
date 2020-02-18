@@ -11,6 +11,7 @@ var DungeonRenderer=
         var ctx = this.canvas.getContext('2d');
         let minsize = graph.cellSize;
         let map = graph.map;
+        let branches = graph.branches;
         //step one clear the buff
         //reset the buffer to black
         ctx.beginPath();
@@ -55,6 +56,16 @@ var DungeonRenderer=
                 ctx.fill();
             }
         }
+        for(let i = 0; i < branches.length; i++ )
+        {
+            let x = branches[i].location.x;
+            let y = branches[i].location.y;
+            ctx.beginPath();
+            ctx.rect(x*size - bounds.minX, y*size - bounds.minY, size, size);
+            ctx.fillStyle = "Red";
+            ctx.fill();
+        }
+
     },
     getFillStyle(i)
     {
@@ -67,6 +78,8 @@ var DungeonRenderer=
                 return `rgb(${c*20+50},${c*20+50},${c*20+50})`
             case Tile.TYPE.Floor:
                 return `rgb(${c*20+100},${c*20+100},${c*20+100})`
+            default:
+                return "yellow";
         }
         
     }
