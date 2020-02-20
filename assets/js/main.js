@@ -37,7 +37,7 @@ var icons = document.querySelectorAll(".skill-icon");
 		//key is the location that we are comming from
 		//value is the location we will go back to defults to '' if key is undefined
 		"#randommap": "work",
-		"#dungongenerator": "work",
+		"#dungeongenerator": "work",
 	}
 
 	// Fix: Flexbox min-height bug on IE.
