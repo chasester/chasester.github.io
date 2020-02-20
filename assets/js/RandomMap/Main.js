@@ -14,8 +14,8 @@ class RandomMap extends CanvasTarget
             "CoastalCleanup":       "LandGathering",
             "LandGathering":        "TerrianNormalization",
             "TerrianNormalization": "TempatureRoughCover",
-            "TempatureRoughCover":  "WaterSheding",
-            "WaterSheding":         "GenerateSites"
+            "TempatureRoughCover":  "Done",
+            "Done":                 ""
     }
     constructor()
     {
@@ -151,24 +151,32 @@ class RandomMap extends CanvasTarget
         // this will create a animation which will help people see how the algorithm builds
         if(this[this.funcStep]() == false)
         {
-            console.log(this.funcStep)
             this.dataStack = {}; //reset data stack so we dont have collisions
             this.funcStep = RandomMap.STEP_FUNC[this.funcStep]; //stack the next step into the slot for next cycle
         }
-
-        if(this.shouldRender) RandomMapRender.render(this.graph, this.camera); //only render if we should render so we dont get weird rerender glitch
+        let status = this.funcStep.replace( /([A-Z])([A-Z])([a-z])|([a-z])([A-Z])/g, '$1$4 $2$3$5' );
+        if(this.shouldRender) RandomMapRender.render(this.graph, this.camera, status); //only render if we should render so we dont get weird rerender glitch
     }
     //function in order of Step Functions
     Init()
     {
+        if(this.dataStack.nexttime) return this.dataStack.nexttime > new Date().getTime();
         this.bounds = new Rect(0,0,this.canvas.width, this.canvas.height);
+        this.graph = { //this is our interal storage of the data we get from the graph set up exactly the same as the diagram but with internal class variables
+            corners: [], //list of internal corners
+            cells: [], //list of internal cells
+            sites: [], //list of internal vec2 points randomly picked from seed
+            edges: []  //list of internal edges
+            }
         this.BuildCustomGraph();
         RandomMapRender.init(this.canvas, this.graph);
         this.Seeds.Map = new Random(this.props["Map Seed"][1]);
         this.Seeds.Var = new Random(this.props["Variant"][1]);
         this.Seeds.Evol = new Random(this.props["Evolution Seed"][1]);
         console.log(`Using Seeds:\n\tMap:${this.Seeds.Map.s}\n\tVarient:${this.Seeds.Var.s}\n\tEvolution:${this.Seeds.Evol.s}` ) 
-        return false;
+        this.dataStack.nexttime = new Date().getTime()+1000;
+        return true;
+        
     }
     GenerateSites()
     {
@@ -583,17 +591,19 @@ class RandomMap extends CanvasTarget
     }
     TempatureRoughCover() //starting here we will use evolutionary seed
     {
+        this.graph.done = true;
         return false;
     }
-    WaterSheding()
+    Done()
     {
         //this.shouldRender = false;
         //let ctx = this.canvas.getContext('2d');
         return true;
     }
 }
-CanvasMgr.AddCanvas(new RandomMap());
-var RegenerateRandomMap = () => Map = new RandomMap();
+let rndmap = new RandomMap();
+CanvasMgr.AddCanvas(rndmap);
+var RegenerateRandomMap = () => console.log(rndmap.funcStep = "Init");
 //this is a quick wrapper that makes sure that we are the active window before we run our code
 /* rndContainor = document.querySelector("article#RandomMap")
 var Map = new RandomMap(); //first instance of class built on load of file;
