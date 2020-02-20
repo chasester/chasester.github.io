@@ -51,8 +51,14 @@ var RandomMapRender = {
         ctx.font = "50px Arial";
         ctx.fillText("Loading...",this.canvas.width/2,this.canvas.height/2);
         },
-
-    render: function(diagram, camera) {
+    renderStatus(ctx,status)
+    {
+        ctx.textAlign = "start";
+        ctx.font = "30px Georgia";
+        ctx.fillStyle = "white";
+        ctx.fillText(status + "...", 10,this.canvas.height-20)
+    },
+    render: function(diagram, camera,status) {
         //old render using voronoi.js class functions
         {/* var ctx = this.canvas.getContext('2d');
         // background
@@ -120,7 +126,7 @@ var RandomMapRender = {
         
         //step two do validation
         //validate that we have data to render
-        if(!diagram) return // this below function will use data as form from utils instead of voronio (above renders from voronoi data)
+        if(!diagram) {this.renderStatus(status); return;} // this below function will use data as form from utils instead of voronio (above renders from voronoi data)
         let setting = {showcorners: false, showedges: false, showsites: false, showNeighbors: false} //this will be replaced by a paramater
         let cammatix = camera.cammatix;/*  {
             position: new Vec2(0,0), //upper Left corner of the camera;
@@ -212,9 +218,8 @@ var RandomMapRender = {
                 })
             }
             ctx.stroke();
-            
         }
-
+        this.renderStatus(ctx,status);
         },
         getFillStyle(c){//will determine cell color by biome and elevation data
             let r,d;
