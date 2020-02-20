@@ -157,7 +157,6 @@ input, select, textarea {
 	}
 
 		a:hover {
-			border-bottom-color: transparent;
 		}
 
 	strong, b {
@@ -601,7 +600,19 @@ input, select, textarea {
 		}
 
 /* Icon */
-
+	.text-icon
+	{
+		border: 1px solid white; 
+		border-radius: 10px; 
+		padding: 1px 8px; 
+		margin-right: 10px; 
+		color: whitesmoke
+	}
+	.text-icon:hover
+	{
+		color: gainsboro;
+		border-color: gainsboro;
+	}
 	.icon {
 		text-decoration: none;
 		border-bottom: none;
@@ -1199,14 +1210,11 @@ input, select, textarea {
 		}
 		.gallery-item
 		{
-			width: 49%;
-			height: 48%;
 		}
 		.gallery-item img
 		{
 			border-radius: 5%;
 			width: 100%;
-			height: 100%;
 			-moz-filter: grayscale(100%);
 			-webkit-filter: grayscale(100%);
 			-ms-filter: grayscale(100%);
@@ -1378,7 +1386,7 @@ input, select, textarea {
 			#header .logo .icon:before {
 				font-size: 2rem;
 			}
-
+		
 		#header .content {
 			border-style: solid;
 			border-color: #ffffff;
