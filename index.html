@@ -31,10 +31,10 @@
 						</div>
 						<nav>
 							<ul>
-								<li><a href="#intro">Intro</a></li>
-								<li><a href="#work">Work</a></li>
-								<li><a href="#skills">Skills</a></li>
-								<li><a href="https://resume.creddle.io/resume/5xk25r0nreq" target="_blank">Résumé</a></li>
+								<li role="button"><a href="#intro">Intro</a></li>
+								<li role="button"><a href="#work">Work</a></li>
+								<li role="button"><a href="#skills">Skills</a></li>
+								<li role="button"><a href="https://resume.creddle.io/resume/5xk25r0nreq" target="_blank">Résumé</a></li>
 								<!--<li><a href="#elements">Elements</a></li>-->
 							</ul>
 						</nav>
@@ -52,27 +52,52 @@
 								<p>I have been programing for 10+ years and enjoy oop. I enjoy C++ coding the most and have a good understanding of memory management, type-casting, templates, and verdaic (functions and templates). I have a good understanding of GLSL, openGL, and SDL, and have worked on many projects using these libraries. I also have worked with both Unreal and Unity extenively, and can program both in 2d space and 3d worlds.</p>
 								</div>
 								<ul class="icons">
-									<li><a href="https://github.com/chasester" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
-									<li><a href="https://www.linkedin.com/in/chase-wenner" class="icon fa-linkedin" target="_blank"><span class="label">GitHub</span></a></li>
-									<li><a href="mailto:chasester123@gmail.com" class="icon fa-envelope-open" target="_blank"><span class="label">Email</span></a></li>
-									<li><a href="tel:+16148247511" class="icon fa-phone"><span class="label">Phone</span></a></li>
+									<li role="button"><a href="https://github.com/chasester" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+									<li role="button" ><a href="https://www.linkedin.com/in/chase-wenner" class="icon fa-linkedin" target="_blank"><span class="label">GitHub</span></a></li>
+									<li role="button" ><a href="mailto:chasester123@gmail.com" class="icon fa-envelope-open" target="_blank"><span class="label">Email</span></a></li>
+									<li role="button" ><a href="tel:+16148247511" class="icon fa-phone"><span class="label">Phone</span></a></li>
 								</ul>
 							</article>
 
 						<!-- Work -->
 							<article id="work">
-								<h2 class="major">Work</h2>
-								<p>Here is some of the work I have done as a student at Lambda School taking there Full Stack Web Development Course.</p>
-								<div class="gallery-container">
-									<a href="#RandomMap" class="gallery-item"><img src="images/Canvas.png"/></a>
-									<!-- <a href="https://codepen.io/chase-wenner/pen/LaarWr?editors=1100" class="gallery-item"><img src="https://s3-us-west-2.amazonaws.com/i.cdpn.io/3019295.LaarWr.6111d519-8c3d-4367-ac76-b997c1c26f28.png"/></a>
-									<a href="https://codepen.io/chase-wenner/pen/qvyOzw" class="gallery-item"><img src="https://s3-us-west-2.amazonaws.com/i.cdpn.io/3019295.qvyOzw.08b8cc5f-9ecf-4746-aa62-5a458fa91d2e.png"/></a> -->
+								<h2>Work</h2>
+								<h4 class="major" style="margin-bottom: 20px;">Contintental Random Map Generator</h4>
+								<div style="display: grid; grid-template: 1fr 5px 30px / 40% 10px 60%; margin-bottom: 40px;" class="gallery-item">
+									<a role="button" href="#RandomMap"><img src="images/Canvas.png"/></a>
+									<div style="grid-column-start: -2;">
+										<p style="font-size: 0.85rem;">
+											Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+										</p>
+									</div>
+									<div style="grid-column: 1/-1; grid-row-start: 3; display: flex; flex-direction: row; align-items: center; margin-left: 20px; font-size: 1.1rem;" >
+										<a href="#RandomMap" class="text-icon"><span class="far fa-eye"></span> Demo</a>
+										<a href="https://github.com/chasester/chasester.github.io/tree/master/assets/js/RandomMap" class="text-icon" target="_blank"><span class="fab fa-js-square"></span> Source</a>
+										<a href="https://github.com/chasester/Random_Map" class="text-icon" target="_blank"><span class="fab fa-unity"></span> Source</a>
+									</div>
+									</ul>
+								</div>
+								<h4 class="major" style="margin-bottom: 20px;">Dungeon Generator</h4>
+								<div style="display: grid; grid-template: 1fr 5px 30px / 40% 10px 60%; margin-bottom: 40px;" class="gallery-item">
+									<a role="button" href="#DungeonGenerator"><img src="images/Esc-d-full.png"/></a>
+									<div style="grid-column-start: -2;">
+										<p style="font-size: 0.85rem;">
+											Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+										</p>
+									</div>
+									<div style="grid-column: 1/-1; grid-row-start: 3; display: flex; flex-direction: row; align-items: center; margin-left: 20px; font-size: 1.1rem;" >
+										<a href="#DungeonGenerator" class="text-icon"><span class="far fa-eye"></span> Demo</a>
+										<a href="https://esc-d.netlify.com/" class="text-icon" target="_blank"><span class="fas fa-globe"></span> Web Site</a>
+										<a href="https://github.com/GameBuildWeek1/GameWeekClient" class="text-icon" target="_blank"><span class="fab fa-js-square"></span> Front End</a>
+										<a href="https://github.com/GameBuildWeek1/CS-Build-Week-1" class="text-icon" target="_blank"><span class="fab fa-python"></span> Back End</a>
+									</div>
+									</ul>
 								</div>
 								<!-- <ul class="icons">
-										<li><a href="https://github.com/chasester" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
-										<li><a href="https://www.linkedin.com/in/chase-wenner" class="icon fa-linkedin" target="_blank"><span class="label">GitHub</span></a></li>
-										<li><a href="mailto:chasester123@gmail.com" class="icon fa-envelope-open" target="_blank"><span class="label">Email</span></a></li>
-										<li><a href="tel:+16148247511" class="icon fa-phone"><span class="label">Phone</span></a></li>
+											<li role="button" tabindex="0"><a href="https://github.com/chasester" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+											<li role="button" tabindex="1"><a href="https://www.linkedin.com/in/chase-wenner" class="icon fa-linkedin" target="_blank"><span class="label">GitHub</span></a></li>
+											<li role="button" tabindex="2"><a href="mailto:chasester123@gmail.com" class="icon fa-envelope-open" target="_blank"><span class="label">Email</span></a></li>
+											<li role="button" tabindex="3"><a href="tel:+16148247511" class="icon fa-phone"><span class="label">Phone</span></a></li>
 									</ul> 
 							-->
 							</article>
@@ -415,12 +440,12 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 				<!-- Footer -->
 					<footer id="footer">
 						<ul class="icons">
-							<li><a href="https://github.com/chasester" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
-							<li><a href="https://www.linkedin.com/in/chase-wenner" class="icon fa-linkedin" target="_blank"><span class="label">GitHub</span></a></li>
-							<li><a href="mailto:chasester123@gmail.com" class="icon fa-envelope-open" target="_blank"><span class="label">Email</span></a></li>
-							<li><a href="tel:+16148247511" class="icon fa-phone"><span class="label">Phone</span></a></li>
+							<li role="button"><a href="https://github.com/chasester" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+							<li role="button" ><a href="https://www.linkedin.com/in/chase-wenner" class="icon fa-linkedin" target="_blank"><span class="label">GitHub</span></a></li>
+							<li role="button" ><a href="mailto:chasester123@gmail.com" class="icon fa-envelope-open" target="_blank"><span class="label">Email</span></a></li>
+							<li role="button" ><a href="tel:+16148247511" class="icon fa-phone"><span class="label">Phone</span></a></li>
 						</ul>
-						<p class="copyright">&copy; Chase Wenner <br/><a href="https://html5up.net/dimension" target="_blank">Design by HTML5 UP</a>.</p>
+						<p class="copyright">&copy; Chase Wenner <br/><a role="button" href="https://html5up.net/dimension" target="_blank">Design by <span style="text-decoration: underline;">HTML5 UP</span></a>.</p>
 					</footer>
 
 			</div>
