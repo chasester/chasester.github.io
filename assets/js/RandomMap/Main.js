@@ -3,8 +3,8 @@
 
 class RandomMap extends CanvasTarget
 {
-    static STEP_FUNC = //string function types which allow us to to do dynamic step calling
-    {
+    /* static */ STEP_FUNC = //string function types which allow us to to do dynamic step calling
+    {//remove static cuz its not globally suported
             "Init":                 "GenerateSites", //init only runs on the first pass
             "GenerateSites":        "LloydRelaxation",
             "LloydRelaxation":      "PatelRelaxation",
@@ -152,7 +152,7 @@ class RandomMap extends CanvasTarget
         if(this[this.funcStep]() == false)
         {
             this.dataStack = {}; //reset data stack so we dont have collisions
-            this.funcStep = RandomMap.STEP_FUNC[this.funcStep]; //stack the next step into the slot for next cycle
+            this.funcStep = this.STEP_FUNC[this.funcStep]; //stack the next step into the slot for next cycle
         }
         let status = this.funcStep.replace( /([A-Z])([A-Z])([a-z])|([a-z])([A-Z])/g, '$1$4 $2$3$5' );
         if(this.shouldRender) RandomMapRender.render(this.graph, this.camera, status); //only render if we should render so we dont get weird rerender glitch

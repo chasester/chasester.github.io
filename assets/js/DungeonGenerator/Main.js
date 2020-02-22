@@ -1,6 +1,6 @@
 class DungeonMap extends CanvasTarget
 {
-    static FUNC_STEP = 
+    /* static */ FUNC_STEP =  //remove stat definition as its not suported by all browsers
     {
         "Init": "CreateWelcomeRoom",
         "CreateWelcomeRoom": "GenerateRooms",
@@ -47,7 +47,7 @@ class DungeonMap extends CanvasTarget
         {
             console.log(this.funcStep)
             this.dataStack = {}; //reset data stack so we dont have collisions
-            this.funcStep = DungeonMap.FUNC_STEP[this.funcStep]; //stack the next step into the slot for next cycle
+            this.funcStep = this.FUNC_STEP[this.funcStep]; //stack the next step into the slot for next cycle
         }
 
         if(this.shouldRender) DungeonRenderer.render(this.graph, this.camera); //only render if we should render so we dont get weird rerender glitch
@@ -79,7 +79,7 @@ class DungeonMap extends CanvasTarget
             }
             this.graph.map.push(arr);
         }
-        
+        console.log("Seed:", branchrandom.s);
         //adds delay for animation
         this.dataStack.nexttime = new Date().getTime()+1000;
         return true;
@@ -87,7 +87,7 @@ class DungeonMap extends CanvasTarget
     CreateWelcomeRoom()
     { //keep in mind that if 3/4 of width or height is < 5 then you could have an overdraw (though in our case this wont happen)
         if(this.dataStack.nexttime) return this.dataStack.nexttime > new Date().getTime();
-        let randomInt = (a,b) => Math.floor(Branch.Random.randomRange(a,b)),
+        let randomInt = (a,b) => Math.floor(branchrandom.randomRange(a,b)),
         size = new Vec2(this.graph.map[0].length, this.graph.map.length),
         home = new Vec2(
             randomInt(Math.floor(size.x/4), Math.floor(3*size.x/4)), 
@@ -95,15 +95,14 @@ class DungeonMap extends CanvasTarget
             ),
         start = new Vec2(home.x-2, home.y-2),
         rsize = new Vec2(5,5);
-        console.log(this.graph.map[start.y][start.x]);
         for(let y = 0, leny = rsize.y; y < leny; y++)
             for(let x = 0, lenx = rsize.x; x< lenx; x++)
-                this.graph.map[start.y+y][start.x+x].type = Tile.TYPE.Floor;
-        this.graph.map[home.y][home.x].type = Tile.TYPE.Entrance;
+                this.graph.map[start.y+y][start.x+x].type = TileTYPE.Floor;
+        this.graph.map[home.y][home.x].type = TileTYPE.Entrance;
         this.graph = {...this.graph, home, size};
         
         for(let i = 0; i < 4; i++)//create our braches out of the home room
-            this.graph.branches.push(new Branch(i, home.x+2*directionValues[direction[i]].x, home.y+2*directionValues[direction[i]].y, 100, Branch.Random.random()*0.2, Branch.Random.random()*0.1));
+            this.graph.branches.push(new Branch(i, home.x+2*directionValues[direction[i]].x, home.y+2*directionValues[direction[i]].y, 100, branchrandom.random()*0.2, branchrandom.random()*0.1));
         
         //set up camera so its where ever this spawns
         /* let minsize = this.graph.cellSize;

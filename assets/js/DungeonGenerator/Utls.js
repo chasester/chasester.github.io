@@ -1,6 +1,4 @@
-class Tile
-{
-    static TYPE =
+const TileTYPE = //remove static changed to global variable
     {
         "None": 0,
         "Wall": 1,
@@ -8,6 +6,16 @@ class Tile
         "Entrance": 3,
         "Exit": 4
     }
+class Tile
+{/* 
+    static TYPE =  //remove static as its not suported by all browers
+    {
+        "None": 0,
+        "Wall": 1,
+        "Floor": 2,
+        "Entrance": 3,
+        "Exit": 4
+    } */
     constructor(id, pos, ind, type=0)
     {
         this.id = id;
@@ -32,18 +40,17 @@ class Room //original alogoithm didnt use this, so this maybe added to code if i
 
 //old code 0 is wall and 1 is floor 
 //our code 0 is wall and 2 is floor, wall is a post effect
-var seed = Math.random()*9999999;
+var branchrandom = new Random(Math.random()*9999999);
+
 class Branch
 {
-    static Random = new Random(seed); //set up a global random just so we can do seeding later
     constructor(direction, x,y, decay, b_chance, dir_chance)
     {
-        console.log(seed);
         //decay - chance for branch to die
         //chance - chance for creating a new branch
         //dir is the last direction traveled from;
         //room is the last room visited
-        this.id = Branch.Random.random()*999999999;
+        this.id = branchrandom.random()*999999999;
         this.dir = direction;
         this.location = new Vec2(x,y);
         this.decay = decay;
@@ -56,18 +63,18 @@ class Branch
 
     TryBranch() //should we branch off
     {
-        let b = Branch.Random.random() > this.b_chance;
+        let b = branchrandom.random() > this.b_chance;
         this.b_chance += b ? -0.01 : 0.05;
         return b;
     }
     CreateRoom(world, branches,canBranch=true, force =false) //should we try and draw a room
     {
-        if(Branch.Random.random() > 0.8 && force == false) //decide not to draw room
-        {world[this.location.y][this.location.x].type = Tile.TYPE.Floor; return true}
+        if(branchrandom.random() > 0.8 && force == false) //decide not to draw room
+        {world[this.location.y][this.location.x].type = TileTYPE.Floor; return true}
         
 
         this.room_step = -2; //reset this so we dont draw a room too often
-        let randomInt = (a,b) => Math.floor(Branch.Random.randomRange(a,b)),
+        let randomInt = (a,b) => Math.floor(branchrandom.randomRange(a,b)),
             rsize = new Vec2(randomInt(3,6), randomInt(3,6)),
             rdir = directionOffset[this.dir],
             rstart = new Vec2(
@@ -84,7 +91,7 @@ class Branch
                 for(let x = -1, lenx = rsize.x+1; x < lenx; x++)
                 {
                     t = world[rstart.y+y][rstart.x+x];
-                    if(t.type == Tile.TYPE.Floor) //t.type will error if t is undefined 
+                    if(t.type == TileTYPE.Floor) //t.type will error if t is undefined 
                     {
                         flag = true;
                         break;
@@ -95,16 +102,16 @@ class Branch
         } catch { return this.draw_back(world);} //to close to the end of the map to draw
         
         if(flag) //we ran into another path or we are over the edge of the map so we need to just keep moving
-            {world[this.location.y][this.location.x].type = Tile.TYPE.Floor; return true;} 
+            {world[this.location.y][this.location.x].type = TileTYPE.Floor; return true;} 
 
         //we didnt run into another branch or room so we can draw now
         for(let y = 0, leny = rsize.y; y < leny; y++ )
             for(let x =0, lenx = rsize.x; x < lenx; x++ )
-                world[rstart.y+y][rstart.x + x].type = Tile.TYPE.Floor;
+                world[rstart.y+y][rstart.x + x].type = TileTYPE.Floor;
     
-        world[this.location.y][this.location.x].type = Tile.TYPE.Floor; //assign the tile the branch is on (this is one unit from the room)
+        world[this.location.y][this.location.x].type = TileTYPE.Floor; //assign the tile the branch is on (this is one unit from the room)
         this.location = directionValues[direction[this.dir]].add(this.location); //move into the room to one tile pass the entrence
-        world[this.location.y][this.location.x].type = Tile.TYPE.Floor; //redunent?
+        world[this.location.y][this.location.x].type = TileTYPE.Floor; //redunent?
         //this.location = this.location.add(directionValues[direction[this.dir]].mul(rsize.sub(1).x, rsize.sub(1).y)); //move to the other end of the room -stright accross
         this.location.x += directionValues[direction[this.dir]].x*(rsize.x-1);
         this.location.y += directionValues[direction[this.dir]].y*(rsize.y-1);
@@ -116,7 +123,7 @@ class Branch
             this.location.x = rstart.x + randomInt(0,rsize.x);
         
         if(!canBranch){ return false;}
-        world[this.location.y][this.location.x].type = Tile.TYPE.Floor;
+        world[this.location.y][this.location.x].type = TileTYPE.Floor;
         if(!this.TryBranch()) {return true;} //try to make alternet exits in this room
         let b = this.dir < 2 ? 2 : 0,
             loc, dir;
@@ -143,16 +150,16 @@ class Branch
                 break;
             }
             dir = directionValues[direction[i]];
-            let brn = new Branch(i,loc.x, loc.y, randomInt(100,200), Branch.Random.random()*0.1, Branch.Random.random()*0.2);
+            let brn = new Branch(i,loc.x, loc.y, randomInt(100,200), branchrandom.random()*0.1, branchrandom.random()*0.2);
             branches.push(brn);
         }
         return true;
     }
     ChangeDirection()
     {
-        //let randomInt = (a,b) => Math.floor(Branch.Random.randomRange(a,b));
-        if(this.dir == 0 || this.dir == 1) return Branch.Random.random() > 0.5 ? 2 : 3;
-        if(this.dir == 2 || this.dir == 3) return Branch.Random.random() > 0.5 ? 0 : 1;
+        //let randomInt = (a,b) => Math.floor(branchrandom.randomRange(a,b));
+        if(this.dir == 0 || this.dir == 1) return branchrandom.random() > 0.5 ? 2 : 3;
+        if(this.dir == 2 || this.dir == 3) return branchrandom.random() > 0.5 ? 0 : 1;
         return this.dir;
     }
     draw_back(world)
@@ -175,14 +182,14 @@ class Branch
                 try {
                 loc = this.location.add(directionValues[direction[i]]);
                 t = world[loc.y][loc.x];
-                if(t && t.type == Tile.TYPE.Floor) { count += 1; i_loc = loc;} //if we find a floor tile then set its location and then add count\
+                if(t && t.type == TileTYPE.Floor) { count += 1; i_loc = loc;} //if we find a floor tile then set its location and then add count\
                 }catch{}
             }
             if(count > 1) break; //we have 2 tiles that are floor we are back in a room so we can stop
             //else fill in the last tile we where at and move us to the open tile near us
             try{
             t = world[this.location.y][this.location.x];
-            if(t) t.type = Tile.TYPE.None;
+            if(t) t.type = TileTYPE.None;
             if(i_loc == null) { break;} //this should nv happen unless some weird corner case i cant think of rn
             this.location = i_loc;
             }catch{break;}
@@ -192,7 +199,7 @@ class Branch
     Move(world, branches) //main loop
     {
         if(this.dorment) return false;
-        let random = () => Branch.Random.random();
+        let random = () => branchrandom.random();
         this.decay -= 1;
         this.location = this.location.add(directionValues[direction[this.dir]])
         if(this.decay < 10)
@@ -213,25 +220,25 @@ class Branch
         try{
         let t;
         t = world[this.location.y][this.location.x];
-        if(t.type == Tile.TYPE.Floor) {return false;};
+        if(t.type == TileTYPE.Floor) {return false;};
         
         //if(!t)return this.draw_back(world); //ran out of the map
-        if(t.type == Tile.TYPE.Floor) return false; //ran into another branch
+        if(t.type == TileTYPE.Floor) return false; //ran into another branch
         try{ //now we need to check if there is a room near us so we dont get wierd room cuts that make odd shapes. Basically check a one space margin to make sure we arent running along a room
             if(this.dir > 1 && change == false)
             { //this is nor perfect as this can cause some weird corner rooms on the edges but these are not very odd so we will accept them
                 for(let y = -1; y < 2; y+=2) //check n s
-                    if(world[this.location.y + y][this.location.x].type == Tile.TYPE.Floor)
+                    if(world[this.location.y + y][this.location.x].type == TileTYPE.Floor)
                     {
-                        world[this.location.y][this.location.x].type = Tile.TYPE.Floor;
+                        world[this.location.y][this.location.x].type = TileTYPE.Floor;
                         return false; //kill brach
                     }
             }else if(change == false) 
             {
                 for(let x = -1; x < 2; x+=2) //check e w
-                    if(world[this.location.y][this.location.x + x].type == Tile.TYPE.Floor)
+                    if(world[this.location.y][this.location.x + x].type == TileTYPE.Floor)
                     {
-                        world[this.location.y][this.location.x].type = Tile.TYPE.Floor;
+                        world[this.location.y][this.location.x].type = TileTYPE.Floor;
                         return false; //kil branch
                     }
             }
@@ -241,7 +248,7 @@ class Branch
         this.room_step += 1
         if(this.room_step > 0) //force a room as much as posible so we can make sure we have lots of rooms
             return this.CreateRoom(world, branches);
-        world[this.location.y][this.location.x].type = Tile.TYPE.Floor;;
+        world[this.location.y][this.location.x].type = TileTYPE.Floor;;
         return true;
         }catch {return this.draw_back(world);}
     }

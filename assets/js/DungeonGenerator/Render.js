@@ -88,11 +88,11 @@ var DungeonRenderer=
         let c = random.hash(i.id); //proboably a bit shift would be better
         switch(i.type)
         {
-            case Tile.TYPE.None:           
+            case TileTYPE.None:           
                 return `rgb(${c*5},${c*5},${c*5})`;
-            case Tile.TYPE.Wall: 
+            case TileTYPE.Wall: 
                 return `rgb(${c*20+50},${c*20+50},${c*20+50})`
-            case Tile.TYPE.Floor:
+            case TileTYPE.Floor:
                 return `rgb(${c*20+100},${c*20+100},${c*20+100})`
             default:
                 return "yellow";

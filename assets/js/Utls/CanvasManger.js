@@ -21,11 +21,11 @@ class CanvasTarget
 class CanvasManger
 {
     canvases = []; //of canvas targets
-    static Interval = null; // set this here so we basically can make this a singlton
+    /* static */ Interval = null; // set this here so we basically can make this a singlton
     constructor()
     {
-        if(CanvasManger.Interval) return; //kill any objects pass the first object we create
-        CanvasManger.Interval = setInterval(()=> this.main(), 20); //set up our main loop
+        if(this.Interval) return; //kill any objects pass the first object we create
+        this.Interval = setInterval(()=> this.main(), 20); //set up our main loop
     }
     AddCanvas(CT) { //of type Canvas Target
         if(!typeof CT == CanvasTarget) return;
