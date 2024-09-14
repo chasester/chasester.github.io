@@ -604,7 +604,9 @@ class RandomMap extends CanvasTarget
 let rndmap = new RandomMap();
 CanvasMgr.AddCanvas(rndmap);
 var RegenerateRandomMap = () => console.log(rndmap.funcStep = "Init");
-//this is a quick wrapper that makes sure that we are the active window before we run our code
+
+//Removed this code and moved to global canvas manager class
+////this is a quick wrapper that makes sure that we are the active window before we run our code
 /* rndContainor = document.querySelector("article#RandomMap")
 var Map = new RandomMap(); //first instance of class built on load of file;
 var RegenerateRandomMap = () => Map = new RandomMap();

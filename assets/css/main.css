@@ -1494,7 +1494,10 @@ input, select, textarea {
 			-ms-filter: blur(0.125rem);
 			filter: blur(0.125rem);
 		}
-
+		body::-webkit-scrollbar
+		{
+			display: none;
+		}
 			body.is-preload #header > * {
 				opacity: 0;
 			}
