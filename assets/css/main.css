@@ -88,6 +88,16 @@ input, select, textarea {
 
 	html {
 		box-sizing: border-box;
+		/*globally remove scrollbars, in live just telling the body does not work */
+		scrollbar-width: none;
+		-ms-overflow-style: none;  /* IE and Edge */
+		scrollbar-width: none;  /* Firefox */
+	}
+	/*Additiona call for chrome, and other chromium browswers that do not support the above calls for removing scorll bars.*/
+	html::-webkit-scrollbar
+	{
+
+		display: none;
 	}
 
 	*, *:before, *:after {
@@ -1494,20 +1504,17 @@ input, select, textarea {
 			-ms-filter: blur(0.125rem);
 			filter: blur(0.125rem);
 		}
-		body::-webkit-scrollbar
-		{
-			display: none;
-		}
-			body.is-preload #header > * {
-				opacity: 0;
-			}
 
-			body.is-preload #header .content .inner {
+		body.is-preload #header > * {
+			opacity: 0;
+		}
+
+		body.is-preload #header .content .inner {
 				max-height: 0;
 				padding-top: 0;
 				padding-bottom: 0;
 				opacity: 0;
-			}
+		}
 
 		@media screen and (max-width: 980px) {
 
