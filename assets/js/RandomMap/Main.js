@@ -170,9 +170,9 @@ class RandomMap extends CanvasTarget
             }
         this.BuildCustomGraph();
         RandomMapRender.init(this.canvas, this.graph);
-        this.Seeds.Map = new Random(this.props["Map Seed"][1]);
-        this.Seeds.Var = new Random(this.props["Variant"][1]);
-        this.Seeds.Evol = new Random(this.props["Evolution Seed"][1]);
+        this.Seeds.Map = new Random(Math.floor(Math.random()*9999));
+        this.Seeds.Var = new Random(Math.floor(Math.random()*9999));
+        this.Seeds.Evol = new Random(Math.floor(Math.random()*9999));
         console.log(`Using Seeds:\n\tMap:${this.Seeds.Map.s}\n\tVarient:${this.Seeds.Var.s}\n\tEvolution:${this.Seeds.Evol.s}` ) 
         this.dataStack.nexttime = new Date().getTime()+1000;
         return true;
