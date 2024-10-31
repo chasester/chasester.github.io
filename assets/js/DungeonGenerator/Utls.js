@@ -44,7 +44,7 @@ var branchrandom = new Random(Math.random()*9999999);
 
 class Branch
 {
-    constructor(direction, x,y, decay, b_chance, dir_chance)
+    constructor(direction, x,y, decay, b_chance, dir_chance, doorwayChance)
     {
         //decay - chance for branch to die
         //chance - chance for creating a new branch
@@ -59,6 +59,7 @@ class Branch
         this.dir_chance = dir_chance;
         this.room = null;
         this.room_step = -5;
+        this.doorwayChance = doorwayChance;
     }
 
     TryBranch() //should we branch off
@@ -128,7 +129,7 @@ class Branch
         let b = this.dir < 2 ? 2 : 0,
             loc, dir;
 
-        for(let i = b, len = b+2; i < len; i++)
+        for(let i = b, len = b+this.doorwayChance; i < len; i++)
         { //create a branch in both orthonganal directions ie new exits to this room (so each room has 2 - 4 exits)
             if(!this.TryBranch()) continue;
             loc = new Vec2(rstart.x, rstart.y);
@@ -150,7 +151,7 @@ class Branch
                 break;
             }
             dir = directionValues[direction[i]];
-            let brn = new Branch(i,loc.x, loc.y, randomInt(100,200), branchrandom.random()*0.1, branchrandom.random()*0.2);
+            let brn = new Branch(i,loc.x, loc.y, randomInt(Math.max(this.decay, 0), this.decay+10), branchrandom.random()*this.b_chance, branchrandom.random()*this.dir_chance, this.doorwayChance);
             branches.push(brn);
         }
         return true;

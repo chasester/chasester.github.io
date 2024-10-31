@@ -10,7 +10,20 @@ class DungeonMap extends CanvasTarget
     {
         let container = document.querySelector("article#DungeonGenerator");
         let canvas = container.querySelector("canvas");
-        super(container,canvas);
+        let props = 
+        {
+            "Seed Properties": [], //create a header
+            "Map Seed":     [-99999,  Math.floor(Math.random()*9999), 99999],
+            "Colorization Seed": [-99999,  Math.floor(Math.random()*9999), 99999],
+
+            "Branch Properties": [], //create a header
+          //  "Room Chance":     [0.0, 0.5, 1.0],
+            "Decay": [1, 100, 1000],
+            "Door Ways Max": [0, 2, 2],
+            "Door Way Chance":  [0.0, 0.2, 1.0],
+            "Direction Change Chance": [0.0, 0.1, 1.0]
+        }
+        super(container,canvas, props);
         //addes canvas, container and camera to the class props list
         let over = 1;
         this.bounds = new Rect(0,0,over*canvas.width, over*canvas.height);
@@ -59,15 +72,19 @@ class DungeonMap extends CanvasTarget
 
         this.shouldRender = true;
         DungeonRenderer.init(this.canvas);
+
+        let colorizationSeed = new Random(this.props["Colorization Seed"][1]);
+        branchrandom = new Random(this.props["Map Seed"][1]);
+        console.log(`Using Seeds:\n\tMap:${branchrandom}\n\tColorization:${colorizationSeed}`);
         //build the 2d array
         let dx = Math.ceil(this.bounds.width()/this.graph.cellSize)+1;
         let dy = Math.ceil(this.bounds.height()/this.graph.cellSize)+1;
         let arr, ids = [];
         let cellSize = this.graph.cellSize;
-
+        
         //create a random list of ids cuz we want there to be some cool colorization. Ids are unique but are randomly ordered to allow for some cool color coding
         for(let i = 0; i < dx*dy; i++) ids.push(i);
-        random.shuffle(ids);
+        colorizationSeed.shuffle(ids);
 
         //always build our arrays y then x to keep things in right up to left down
         for(let y = 0; y < dy; y++)
@@ -79,9 +96,9 @@ class DungeonMap extends CanvasTarget
             }
             this.graph.map.push(arr);
         }
-        console.log("Seed:", branchrandom.s);
+
         //adds delay for animation
-        this.dataStack.nexttime = new Date().getTime()+1000;
+        this.dataStack.nexttime = new Date().getTime()+200;
         return true;
     }
     CreateWelcomeRoom()
@@ -89,12 +106,14 @@ class DungeonMap extends CanvasTarget
         if(this.dataStack.nexttime) return this.dataStack.nexttime > new Date().getTime();
         let randomInt = (a,b) => Math.floor(branchrandom.randomRange(a,b)),
         size = new Vec2(this.graph.map[0].length, this.graph.map.length),
+        screenIndexSize = new Vec2(this.canvas.width/this.graph.cellSize, this.canvas.height/this.graph.cellSize),
         home = new Vec2(
-            randomInt(Math.floor(size.x/4), Math.floor(3*size.x/4)), 
-            randomInt(Math.floor(size.y/4), Math.floor(3*size.y/4))
+            randomInt(Math.floor(size.x/2) - Math.floor(screenIndexSize.x/4) ,Math.floor(size.x/2) +  Math.floor(screenIndexSize.x/4) ),
+            randomInt(Math.floor(size.y/2) - Math.floor(screenIndexSize.y/4) ,Math.floor(size.y/2) +  Math.floor(screenIndexSize.y/4) )
             ),
         start = new Vec2(home.x-2, home.y-2),
         rsize = new Vec2(5,5);
+
         for(let y = 0, leny = rsize.y; y < leny; y++)
             for(let x = 0, lenx = rsize.x; x< lenx; x++)
                 this.graph.map[start.y+y][start.x+x].type = TileTYPE.Floor;
@@ -102,14 +121,14 @@ class DungeonMap extends CanvasTarget
         this.graph = {...this.graph, home, size};
         
         for(let i = 0; i < 4; i++)//create our braches out of the home room
-            this.graph.branches.push(new Branch(i, home.x+2*directionValues[direction[i]].x, home.y+2*directionValues[direction[i]].y, 100, branchrandom.random()*0.2, branchrandom.random()*0.1));
+            this.graph.branches.push(new Branch(i, home.x+2*directionValues[direction[i]].x, home.y+2*directionValues[direction[i]].y, this.props["Decay"][1], branchrandom.random()*this.props["Door Way Chance"][1], branchrandom.random()*this.props["Direction Change Chance"][1], this.props["Door Ways Max"][1]));
         
         //set up camera so its where ever this spawns
         /* let minsize = this.graph.cellSize;
         this.camera.cammatix.position = new Vec2((home.x*minsize)-(this.canvas.width/2), (home.y*minsize) - (this.canvas.height/2)); */
 
         //wait 2000 ms before going to next step
-        this.dataStack.nexttime = new Date().getTime()+1000;
+        this.dataStack.nexttime = new Date().getTime()+400;
         return true;
     }
     GenerateRooms()

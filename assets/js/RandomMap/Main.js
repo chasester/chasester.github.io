@@ -17,12 +17,48 @@ class RandomMap extends CanvasTarget
             "TempatureRoughCover":  "Done",
             "Done":                 ""
     }
+
+    
     constructor()
     {
         let container = document.querySelector("article#RandomMap");
         let canvas = container.querySelector("canvas");
-        super(container,canvas);
-        //super declares containter canvas and camera properties of this class
+        let props =  // list of props given to the user, set to default (obviously);
+        {//min default max
+    
+            "Seed Properties": [], //create a header
+            "Map Seed":     [-99999,  Math.floor(Math.random()*9999), 99999],
+            "Variant":  [-99999, Math.floor(Math.random()*9999), 99999],
+            "Evolution Seed": [-99999,  Math.floor(Math.random()*9999), 99999],
+    
+            "Map Properties": [], //create a header
+            "Water Height": [0.0001, 0.35, 1.0],
+            "Perlin Weight": [0.0, 0.28, 1.0], //set this slightly above sea level so we get some islands randomly sprinkled
+            "Center Weight": [0.0, 0.72, 1.0], //this and the above must equal 1.0 Done this way so you can add more methods as weights
+            "Coast Clean Irrations": [1,2,20],
+            "Cell Percentage": [0.0001, 1.6, 3],
+            //"Min Distance": [0.00001, 5, 10],
+            "Coastal Roughness": [0, 1.5, 5.0],
+            "Normalizations Cycles": [-1, 3, 5],
+            "Normalization Depth": [1, 3, 5],
+            //"Lake Moisture": [0.0, 0.8, 1.0],
+            //"Moisture Threshold": [0.000001, 0.01, 0.2],
+            //"Rain Fall Average": [0.0, 4.1, 10.0],
+    
+            "Voronoi Properties": [],
+            "LLOYD Irrations": [0, 3, 20],
+            "PATEL Irrations": [0, 0, 10],
+    
+            //"Heigh Point Properties": [],
+            "Number of High Points": [10,15],
+            "X Range": [100, 200],
+            "Y Range": [100, 300],
+            "Elevation Range": [0.7, 1.5],
+            "Elevation Dropoff": [0.9, 1.9]
+        }
+
+        super(container,canvas, props);
+        //super declares containter canvas and camera properties of this class and sets up sliders
 
         this.Voronoi = new Voronoi(); //external library class
         this.diagram = null; //diagram is the data from the voronoi class
@@ -40,54 +76,21 @@ class RandomMap extends CanvasTarget
         this.status = "Ready";
         this.bounds = new Rect(0,0,1,1); //dont set up bounds until we get a canvas
         this.Seeds = { "Map": 0, "Var": 0, "Evol": 0}
-        this.props =  // list of props given to the user, set to default (obviously);
-        {//min default max
-
-            "Seed Properties": [], //create a header
-            "Map Seed":     [-99999,  Math.floor(Math.random()*9999), 99999],
-            "Variant":  [-99999, Math.floor(Math.random()*9999), 99999],
-            "Evolution Seed": [-99999,  Math.floor(Math.random()*9999), 99999],
-
-            "Map Properties": [], //create a header
-            "Water Height": [0.0001, 0.35, 1.0],
-            "Perlin Weight": [0.0, 0.28, 1.0], //set this slightly above sea level so we get some islands randomly sprinkled
-            "Center Weight": [0.0, 0.72, 1.0], //this and the above must equal 1.0 Done this way so you can add more methods as weights
-            "Coast Clean Irrations": [1,2,20],
-            "Cell Percentage": [0.0001, 1.6, 3],
-            "Min Distance": [0.00001, 5, 10],
-            "Coastal Roughness": [0, 1.5, 5.0],
-            "Normalizations Cycles": [-1, 3, 5],
-            "Normalization Depth": [1, 3, 5],
-            "Lake Moisture": [0.0, 0.8, 1.0],
-            "Moisture Threshold": [0.000001, 0.01, 0.2],
-            "Rain Fall Average": [0.0, 4.0, 10.0],
-
-            "Voronoi Properties": [],
-            "LLOYD Irrations": [0, 3, 20],
-            "PATEL Irrations": [0, 4, 10],
-
-            "Heigh Point Properties": [],
-            "Number of High Points": [10,10],
-            "X Range": [100, 200],
-            "Y Range": [100, 300],
-            "Elevation Range": [0.7, 0.9],
-            "Elevation Dropoff": [0.9, 1.9]
-        }
-
-        //this.init();
     }
+
     Setproperty(name, value)
     {
+        console.log(name,value);
         //some heavy validation due to this being a outfacing function to the user
         let prop = this.props[name]; //hold the prop here
         //global validation
-        if(prop === undefined || prop.length ) //dont allow new properties to exist
+       if(prop === undefined || prop.length < 3 ) //dont allow new properties to exist
             {console.error("This property does not exist"); return;}
         
         //handle min/max/value style properties
         if(typeof value != "Array") { 
             value = parseFloat(value);
-            props[1] = Math.min(Math.max(value, prop[0]),prop[2]); //clamp to the defined min/max
+            this.props[name][1] = Math.min(Math.max(value, prop[0]),prop[2]); //clamp to the defined min/max
             return; //escape here
         }
         //else
@@ -170,9 +173,9 @@ class RandomMap extends CanvasTarget
             }
         this.BuildCustomGraph();
         RandomMapRender.init(this.canvas, this.graph);
-        this.Seeds.Map = new Random(Math.floor(Math.random()*9999));
-        this.Seeds.Var = new Random(Math.floor(Math.random()*9999));
-        this.Seeds.Evol = new Random(Math.floor(Math.random()*9999));
+        this.Seeds.Map = new Random(this.props["Map Seed"][1]);
+        this.Seeds.Var = new Random(this.props["Variant"][1]);
+        this.Seeds.Evol = new Random(this.props["Evolution Seed"][1]);
         console.log(`Using Seeds:\n\tMap:${this.Seeds.Map.s}\n\tVarient:${this.Seeds.Var.s}\n\tEvolution:${this.Seeds.Evol.s}` ) 
         this.dataStack.nexttime = new Date().getTime()+1000;
         return true;
@@ -285,7 +288,7 @@ class RandomMap extends CanvasTarget
         let center = this.bounds.center();
         this.graph.corners.sort((x,y) => -center.dist(x.position) + center.dist(y.position)); //sort from center
         //this.graph.corners.sort((x,y) => random.hash(x.position.x, x.position.y) - random.hash(y.position.x, y.position.y)); //sort from random hash basically garentees the same result every time;
-        return false; //need to come back and look at this. causing a render bug;
+        //return false; //need to come back and look at this. causing a render bug;
         if(this.props["PATEL Irrations"][1] === 0 ) return false; //exit if the user wishes not to use Patel's algorithm
         this.dataStack.irrations = this.dataStack.irrations ? this.dataStack.irrations+1 : 1; //set up our irration data
         let iCorner = this.graph.corners.length, corners = this.graph.corners,
@@ -603,7 +606,7 @@ class RandomMap extends CanvasTarget
 }
 let rndmap = new RandomMap();
 CanvasMgr.AddCanvas(rndmap);
-var RegenerateRandomMap = () => console.log(rndmap.funcStep = "Init");
+var RegenerateRandomMap = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(()=>rndmap.funcStep = "Init", 700);}
 
 //Removed this code and moved to global canvas manager class
 ////this is a quick wrapper that makes sure that we are the active window before we run our code
