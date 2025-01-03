@@ -14,6 +14,7 @@
 }, 20); */
 
 //alt verison that doesnt trigger popup notifification on some chromium browsers.
+// causes popup issue on IOS Chrome which is less then 0.5% of the market share
 var DelayFocus = (url) => {
     
     setTimeout(()=>{
